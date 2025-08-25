@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>KT WELCOME 가입신청서 · 서버생성 버전</title>
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif;margin:0;background:#0f172a;color:#0f172a}
+.wrap{max-width:960px;margin:32px auto;padding:16px;background:#fff;border-radius:12px}
+h1{margin:0 0 12px 0}
+label{display:block;margin:8px 0 4px 0;color:#64748b}
+input,select{width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:10px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px} @media(max-width:800px){.row{grid-template-columns:1fr}}
+.btnbar{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.btn{appearance:none;border:1px solid #cbd5e1;background:#fff;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
+.btn.primary{background:#0ea5e9;border-color:#0ea5e9;color:#fff}
+.note{font-size:12px;color:#64748b;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>KT WELCOME 가입신청서 (서버 PDF 생성)</h1>
+  <form id="f" method="POST" action="/generate" target="_blank">
+    <div class="row">
+      <div>
+        <label>요금제</label>
+        <select name="plan">
+          <option value="">선택</option>
+          <option value="wel5">5G 웰컴5 (통화200분/25GB+5Mbps)</option>
+          <option value="wel3">5G 웰컴3 (통화200분/3GB+5Mbps)</option>
+          <option value="wel1">5G 웰컴1 (통화200분/1GB+3Mbps)</option>
+        </select>
+      </div>
+      <div><label>주소</label><input name="address" type="text"/></div>
+      <div><label>생년월일</label><input name="birth" type="text" placeholder="6 또는 8자리 숫자"/></div>
+      <div><label>성별</label>
+        <select name="gender"><option value="">선택</option><option>남</option><option>여</option></select>
+      </div>
+      <div><label>유심 일련번호</label><input name="sim_serial" type="text"/></div>
+      <div><label>문자안내 선호언어</label>
+        <select name="pref_langs"><option>한국어</option><option>영어</option><option>중국어</option><option>베트남어</option><option>러시아어</option></select>
+      </div>
+      <div><label>자동이체 방식</label>
+        <select name="payMethod"><option value="bank">은행</option><option value="card">카드</option></select>
+      </div>
+      <div><label>은행</label><input name="bank_name" type="text"/></div>
+      <div><label>계좌번호</label><input name="bank_account" type="text"/></div>
+      <div><label>카드사</label><input name="card_company" type="text"/></div>
+      <div><label>카드번호</label><input name="card_number" type="text"/></div>
+      <div><label>유효기간(년)</label><input name="card_exp_year" type="text"/></div>
+      <div><label>유효기간(월)</label><input name="card_exp_month" type="text"/></div>
+    </div>
+    <div class="note">※ 가입자명/예금주명/카드주명은 자필 작성(출력 후)</div>
+    <div class="btnbar">
+      <button class="btn" type="submit" name="mode" value="inline">미리보기/인쇄</button>
+      <button class="btn primary" type="submit" name="mode" value="download">PDF 저장</button>
+    </div>
+  </form>
+</div>
+</body>
+</html>

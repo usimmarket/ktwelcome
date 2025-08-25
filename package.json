@@ -1,0 +1,9 @@
+{
+  "name": "usimmarket-kt-welcome-pdf",
+  "version": "1.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "dependencies": {
+    "pdf-lib": "^1.17.1"
+  }
+}
