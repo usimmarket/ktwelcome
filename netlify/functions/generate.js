@@ -1,3 +1,1 @@
-const { PDFDocument } = require('pdf-lib');
-const fontkit = require('@pdf-lib/fontkit'); 
-PDFDocument.registerFontkit(fontkit);        
+
