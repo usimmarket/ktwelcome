@@ -1,61 +1,328 @@
 <!doctype html>
 <html lang="ko">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>KT WELCOME 가입신청서 · 서버생성 버전</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KT WELCOME 가입신청서</title>
 <style>
-body{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR',sans-serif;margin:0;background:#0f172a;color:#0f172a}
-.wrap{max-width:960px;margin:32px auto;padding:16px;background:#fff;border-radius:12px}
-h1{margin:0 0 12px 0}
-label{display:block;margin:8px 0 4px 0;color:#64748b}
-input,select{width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:10px}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:12px} @media(max-width:800px){.row{grid-template-columns:1fr}}
-.btnbar{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
-.btn{appearance:none;border:1px solid #cbd5e1;background:#fff;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
-.btn.primary{background:#0ea5e9;border-color:#0ea5e9;color:#fff}
-.note{font-size:12px;color:#64748b;margin-top:8px}
+  :root {
+    --bg:#0b1220; --card:#ffffff; --muted:#64748b; --line:#e5e7eb; --accent:#0ea5e9;
+    --title:#0f172a; --note:#6b7280; --shadow:0 1px 3px rgba(0,0,0,.08);
+  }
+  html,body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans KR",sans-serif;color:#111}
+  .wrap{max-width:980px;margin:20px auto;padding:16px;}
+  header{position:sticky;top:0;background:var(--bg);z-index:5}
+  .bar{display:flex;align-items:center;justify-content:space-between;padding:8px 0}
+  .brand{display:flex;align-items:center;gap:10px}
+  .brand img{height:28px}
+  .brand h1{margin:0;color:#fff;font-size:18px;letter-spacing:.2px}
+  .langs{display:flex;gap:8px}
+  .langbtn{color:#dbeafe;border:1px solid rgba(148,163,184,.35);background:transparent;padding:6px 10px;border-radius:999px;cursor:pointer}
+  .langbtn.active{background:#334155;border-color:#334155;color:#fff}
+  .card{background:var(--card);border-radius:14px;box-shadow:var(--shadow);padding:16px;margin-top:12px}
+  .card h2{margin:0 0 10px 0;color:var(--title);font-size:18px}
+  label{display:block;margin:8px 0 6px;color:var(--muted);font-size:13px}
+  input[type=text], select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px}
+  input[readonly]{background:#f3f4f6;color:#6b7280}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media (max-width:860px){ .grid{grid-template-columns:1fr} }
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .note{font-size:12px;color:var(--note);margin-top:8px}
+  .btnbar{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+  .btn{appearance:none;border:1px solid #cbd5e1;background:#fff;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .seg{display:flex;gap:10px;align-items:center;margin:6px 0}
+  .seg input[type=radio]{margin-right:6px}
+  .hide{display:none}
+  .fixed{background:#f3f4f6;border:1px dashed #e5e7eb;border-radius:10px;padding:10px;color:#6b7280}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>KT WELCOME 가입신청서 (서버 PDF 생성)</h1>
-  <form id="f" method="POST" action="/generate" target="_blank">
-    <div class="row">
-      <div>
-        <label>요금제</label>
-        <select name="plan">
-          <option value="">선택</option>
-          <option value="wel5">5G 웰컴5 (통화200분/25GB+5Mbps)</option>
-          <option value="wel3">5G 웰컴3 (통화200분/3GB+5Mbps)</option>
-          <option value="wel1">5G 웰컴1 (통화200분/1GB+3Mbps)</option>
-        </select>
+  <div class="wrap">
+    <header>
+      <div class="bar">
+        <div class="brand">
+          <img src="./USIMMARKET.png" alt="usim market" onerror="this.style.display='none'">
+          <h1>KT WELCOME 가입신청서</h1>
+        </div>
+        <div class="langs">
+          <button class="langbtn active" data-lang="KR">KR</button>
+          <button class="langbtn" data-lang="US">US</button>
+          <button class="langbtn" data-lang="VN">VN</button>
+          <button class="langbtn" data-lang="TH">TH</button>
+          <button class="langbtn" data-lang="KH">KH</button>
+        </div>
       </div>
-      <div><label>주소</label><input name="address" type="text"/></div>
-      <div><label>생년월일</label><input name="birth" type="text" placeholder="6 또는 8자리 숫자"/></div>
-      <div><label>성별</label>
-        <select name="gender"><option value="">선택</option><option>남</option><option>여</option></select>
+    </header>
+
+    <!-- action /generate 로 바로 제출 -->
+    <form action="/generate" method="POST" target="_blank" id="form">
+      <!-- 요금제 -->
+      <section class="card" id="sec-plan">
+        <h2 data-i18n="plan_section">요금제</h2>
+        <div class="grid">
+          <div>
+            <label for="plan" data-i18n="plan">요금제</label>
+            <select name="plan" id="plan" required>
+              <option value="">선택</option>
+              <option value="wel5">5G 웰컴5 (통화200분/25GB+5Mbps)</option>
+              <option value="wel3">5G 웰컴3 (통화200분/3GB+5Mbps)</option>
+              <option value="wel1">5G 웰컴1 (통화200분/1GB+3Mbps)</option>
+            </select>
+          </div>
+          <div class="fixed" data-i18n="plan_note">요금제 선택 시 총 요금할인/월 이용료/요금 할인/월 청구금액은 서버에서 자동 기입됩니다.</div>
+        </div>
+      </section>
+
+      <!-- 고객정보 -->
+      <section class="card" id="sec-customer">
+        <h2 data-i18n="cust_section">고객정보</h2>
+
+        <div class="seg">
+          <label><input type="radio" name="join_type" value="new" checked> <span data-i18n="join_new">신규</span></label>
+          <label><input type="radio" name="join_type" value="port"> <span data-i18n="join_port">번호이동</span></label>
+        </div>
+
+        <div class="grid">
+          <div>
+            <label for="address" data-i18n="address">주소</label>
+            <input name="address" id="address" type="text" placeholder="도로명 주소" />
+          </div>
+          <div>
+            <label for="birth" data-i18n="birth">생년월일</label>
+            <input name="birth" id="birth" type="text" inputmode="numeric" pattern="\d*" placeholder="6 또는 8자리 숫자" />
+          </div>
+          <div>
+            <label for="gender" data-i18n="gender">성별</label>
+            <select name="gender" id="gender">
+              <option value="" data-i18n="sel">선택</option>
+              <option value="남" data-i18n="male">남</option>
+              <option value="여" data-i18n="female">여</option>
+            </select>
+          </div>
+          <div>
+            <label for="sim_serial" data-i18n="sim">유심 일련번호</label>
+            <input name="sim_serial" id="sim_serial" type="text" />
+          </div>
+          <div>
+            <label for="pref_langs" data-i18n="smslang">문자 안내 선호언어</label>
+            <select name="pref_langs" id="pref_langs">
+              <option>한국어</option><option>영어</option><option>중국어</option>
+              <option>베트남어</option><option>러시아어</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 번호이동일 때만 노출 -->
+        <div class="grid hide" id="portingBox">
+          <div>
+            <label for="port_number" data-i18n="portnum">이동할 전화번호</label>
+            <input name="port_number" id="port_number" type="text" inputmode="numeric" pattern="\d*" />
+          </div>
+          <div>
+            <label for="prev_carrier" data-i18n="prevcarrier">변경전 통신사</label>
+            <select name="prev_carrier" id="prev_carrier">
+              <option value="" data-i18n="sel">선택</option>
+              <option>SK</option>
+              <option>LG U+</option>
+              <option>MVNO</option>
+            </select>
+          </div>
+          <div class="hide" id="mvnoBox">
+            <label for="mvno_name" data-i18n="mvnoname">통신사명(MVNO)</label>
+            <input name="mvno_name" id="mvno_name" type="text" />
+          </div>
+        </div>
+      </section>
+
+      <!-- 유심정보 -->
+      <section class="card" id="sec-usim">
+        <h2 data-i18n="usim_section">유심정보</h2>
+        <div class="grid">
+          <div>
+            <label data-i18n="usimfee">유심비용</label>
+            <input type="text" value="7,700원 후납" readonly />
+          </div>
+        </div>
+      </section>
+
+      <!-- 자동이체 -->
+      <section class="card" id="sec-payment">
+        <h2 data-i18n="pay_section">자동이체</h2>
+
+        <label data-i18n="payway">방식</label>
+        <div class="seg">
+          <label><input type="radio" name="payMethod" value="bank" checked> <span data-i18n="bank">은행</span></label>
+          <label><input type="radio" name="payMethod" value="card"> <span data-i18n="card">카드</span></label>
+        </div>
+
+        <!-- 은행 -->
+        <div class="grid" id="bankBox">
+          <div>
+            <label for="bank_name" data-i18n="bankname">은행</label>
+            <input name="bank_name" id="bank_name" type="text" />
+          </div>
+          <div>
+            <label for="bank_account" data-i18n="account">계좌번호</label>
+            <input name="bank_account" id="bank_account" type="text" inputmode="numeric" pattern="\d*" />
+          </div>
+        </div>
+
+        <!-- 카드 -->
+        <div class="grid hide" id="cardBox">
+          <div>
+            <label for="card_company" data-i18n="cardco">카드사</label>
+            <input name="card_company" id="card_company" type="text" />
+          </div>
+          <div>
+            <label for="card_number" data-i18n="cardno">카드번호</label>
+            <input name="card_number" id="card_number" type="text" inputmode="numeric" pattern="\d*" />
+          </div>
+          <div>
+            <label for="card_exp_year" data-i18n="expyear">유효기간(년)</label>
+            <input name="card_exp_year" id="card_exp_year" type="text" inputmode="numeric" pattern="\d*" />
+          </div>
+          <div>
+            <label for="card_exp_month" data-i18n="expmonth">유효기간(월)</label>
+            <input name="card_exp_month" id="card_exp_month" type="text" inputmode="numeric" pattern="\d*" />
+          </div>
+        </div>
+
+        <div class="note" data-i18n="note_sign">※ 가입자명/예금주명/카드주명은 자필 작성(출력 후)</div>
+      </section>
+
+      <!-- 부가서비스 -->
+      <section class="card" id="sec-addons">
+        <h2 data-i18n="addons">부가서비스</h2>
+        <div class="seg">
+          <button type="button" class="btn" disabled data-i18n="intl">국제전화 차단</button>
+          <button type="button" class="btn" disabled data-i18n="roam">로밍차단</button>
+        </div>
+      </section>
+
+      <!-- 버튼 -->
+      <div class="btnbar">
+        <button class="btn" type="reset" data-i18n="reset">초기화</button>
+        <button class="btn" type="submit"  name="mode" value="inline"   data-i18n="print">미리보기/인쇄</button>
+        <button class="btn primary" type="submit" name="mode" value="download" data-i18n="savepdf">PDF 저장</button>
       </div>
-      <div><label>유심 일련번호</label><input name="sim_serial" type="text"/></div>
-      <div><label>문자안내 선호언어</label>
-        <select name="pref_langs"><option>한국어</option><option>영어</option><option>중국어</option><option>베트남어</option><option>러시아어</option></select>
-      </div>
-      <div><label>자동이체 방식</label>
-        <select name="payMethod"><option value="bank">은행</option><option value="card">카드</option></select>
-      </div>
-      <div><label>은행</label><input name="bank_name" type="text"/></div>
-      <div><label>계좌번호</label><input name="bank_account" type="text"/></div>
-      <div><label>카드사</label><input name="card_company" type="text"/></div>
-      <div><label>카드번호</label><input name="card_number" type="text"/></div>
-      <div><label>유효기간(년)</label><input name="card_exp_year" type="text"/></div>
-      <div><label>유효기간(월)</label><input name="card_exp_month" type="text"/></div>
-    </div>
-    <div class="note">※ 가입자명/예금주명/카드주명은 자필 작성(출력 후)</div>
-    <div class="btnbar">
-      <button class="btn" type="submit" name="mode" value="inline">미리보기/인쇄</button>
-      <button class="btn primary" type="submit" name="mode" value="download">PDF 저장</button>
-    </div>
-  </form>
-</div>
+    </form>
+  </div>
+
+<script>
+/* ===== 숫자만 입력 ===== */
+const onlyDigits = ids => ids.forEach(id=>{
+  const el=document.getElementById(id); if(!el) return;
+  el.addEventListener('input',()=>{ el.value = (el.value||'').replace(/\D+/g,''); });
+});
+onlyDigits(['birth','bank_account','card_number','card_exp_year','card_exp_month','port_number']);
+
+/* ===== 결제 방식 전환(은행/카드) ===== */
+function updatePayUI(){
+  const pm = document.querySelector('input[name="payMethod"]:checked')?.value || 'bank';
+  document.getElementById('bankBox').classList.toggle('hide', pm!=='bank');
+  document.getElementById('cardBox').classList.toggle('hide', pm!=='card');
+}
+document.querySelectorAll('input[name="payMethod"]').forEach(r=>r.addEventListener('change',updatePayUI));
+updatePayUI();
+
+/* ===== 번호이동 전환 및 MVNO 입력 ===== */
+function updateJoinUI(){
+  const isPort = document.querySelector('input[name="join_type"]:checked')?.value === 'port';
+  document.getElementById('portingBox').classList.toggle('hide', !isPort);
+}
+document.querySelectorAll('input[name="join_type"]').forEach(r=>r.addEventListener('change',updateJoinUI));
+updateJoinUI();
+
+document.getElementById('prev_carrier')?.addEventListener('change', e=>{
+  document.getElementById('mvnoBox').classList.toggle('hide', e.target.value!=='MVNO');
+});
+
+/* ===== 간단 검증(필요시 보완 가능) ===== */
+document.getElementById('form').addEventListener('submit', (e)=>{
+  const req = ['plan','gender','sim_serial'];
+  for (const name of req){
+    const el = document.querySelector(`[name="${name}"]`);
+    if(!el || !(el.value||'').trim()){
+      e.preventDefault(); alert(({"plan":"요금제","gender":"성별","sim_serial":"유심 일련번호"})[name]+"은(는) 필수입니다.");
+      el?.focus(); return;
+    }
+  }
+});
+
+/* ===== 언어 토글(라벨/타이틀) ===== */
+const I18N = {
+  KR:{plan_section:"요금제", plan:"요금제", plan_note:"요금제 선택 시 총 요금할인/월 이용료/요금 할인/월 청구금액은 서버에서 자동 기입됩니다.",
+      cust_section:"고객정보", join_new:"신규", join_port:"번호이동",
+      address:"주소", birth:"생년월일", gender:"성별", sel:"선택", male:"남", female:"여",
+      sim:"유심 일련번호", smslang:"문자 안내 선호언어",
+      portnum:"이동할 전화번호", prevcarrier:"변경전 통신사", mvnoname:"통신사명(MVNO)",
+      usim_section:"유심정보", usimfee:"유심비용",
+      pay_section:"자동이체", payway:"방식", bank:"은행", card:"카드", bankname:"은행", account:"계좌번호",
+      cardco:"카드사", cardno:"카드번호", expyear:"유효기간(년)", expmonth:"유효기간(월)",
+      note_sign:"※ 가입자명/예금주명/카드주명은 자필 작성(출력 후)",
+      addons:"부가서비스", intl:"국제전화 차단", roam:"로밍차단",
+      reset:"초기화", print:"미리보기/인쇄", savepdf:"PDF 저장"},
+  US:{plan_section:"Plan", plan:"Plan", plan_note:"Discount / Monthly fee / Final bill are auto-filled on server by selected plan.",
+      cust_section:"Customer Info", join_new:"New", join_port:"Number Porting",
+      address:"Address", birth:"Birth (YYMMDD or YYYYMMDD)", gender:"Gender", sel:"Select", male:"Male", female:"Female",
+      sim:"SIM Serial", smslang:"Preferred SMS Language",
+      portnum:"Porting Number", prevcarrier:"Previous Carrier", mvnoname:"MVNO Name",
+      usim_section:"USIM Info", usimfee:"USIM Fee",
+      pay_section:"Auto Payment", payway:"Method", bank:"Bank", card:"Card", bankname:"Bank", account:"Account No.",
+      cardco:"Card Company", cardno:"Card Number", expyear:"Expiry (Year)", expmonth:"Expiry (Month)",
+      note_sign:"※ Name/Account/Card holder will be handwritten after print.",
+      addons:"Add-on", intl:"Block Intl Calls", roam:"Block Roaming",
+      reset:"Reset", print:"Preview/Print", savepdf:"Save PDF"},
+  VN:{plan_section:"Gói cước", plan:"Gói cước", plan_note:"Giảm giá/Phí tháng/Hóa đơn tự điền theo gói cước.",
+      cust_section:"Thông tin khách hàng", join_new:"Mới", join_port:"Chuyển mạng",
+      address:"Địa chỉ", birth:"Ngày sinh", gender:"Giới tính", sel:"Chọn", male:"Nam", female:"Nữ",
+      sim:"Số seri SIM", smslang:"Ngôn ngữ SMS ưu tiên",
+      portnum:"Số cần chuyển", prevcarrier:"Nhà mạng cũ", mvnoname:"Tên MVNO",
+      usim_section:"Thông tin USIM", usimfee:"Phí USIM",
+      pay_section:"Thanh toán tự động", payway:"Hình thức", bank:"Ngân hàng", card:"Thẻ",
+      bankname:"Ngân hàng", account:"Số tài khoản", cardco:"Công ty thẻ", cardno:"Số thẻ",
+      expyear:"Hạn (năm)", expmonth:"Hạn (tháng)",
+      note_sign:"※ Tên ký tay sau khi in.",
+      addons:"Dịch vụ bổ sung", intl:"Chặn gọi quốc tế", roam:"Chặn roaming",
+      reset:"Làm mới", print:"Xem trước/In", savepdf:"Lưu PDF"},
+  TH:{plan_section:"แพ็กเกจ", plan:"แพ็กเกจ", plan_note:"ส่วนลด/ค่าบริการ/ยอดบิลกรอกอัตโนมัติจากแพ็กเกจ",
+      cust_section:"ข้อมูลลูกค้า", join_new:"เปิดใหม่", join_port:"ย้ายค่าย",
+      address:"ที่อยู่", birth:"วันเกิด", gender:"เพศ", sel:"เลือก", male:"ชาย", female:"หญิง",
+      sim:"หมายเลขซิม", smslang:"ภาษา SMS",
+      portnum:"เบอร์ที่จะย้าย", prevcarrier:"เครือข่ายเดิม", mvnoname:"ชื่อ MVNO",
+      usim_section:"ข้อมูล USIM", usimfee:"ค่าซิม",
+      pay_section:"ตัดบัตร/บัญชีอัตโนมัติ", payway:"วิธี", bank:"ธนาคาร", card:"บัตร",
+      bankname:"ธนาคาร", account:"เลขที่บัญชี", cardco:"บริษัทบัตร", cardno:"หมายเลขบัตร",
+      expyear:"ปีหมดอายุ", expmonth:"เดือนหมดอายุ",
+      note_sign:"※ ชื่อผู้สมัคร/เจ้าของบัญชี/เจ้าของบัตร เขียนด้วยลายมือ",
+      addons:"บริการเสริม", intl:"บล็อกโทรต่างประเทศ", roam:"บล็อกโรมมิ่ง",
+      reset:"ล้าง", print:"พิมพ์", savepdf:"บันทึก PDF"},
+  KH:{plan_section:"កញ្ចប់សេវា", plan:"កញ្ចប់សេវា", plan_note:"បញ្ចុះតម្លៃ/ថ្លៃប្រចាំខែ/វិក្កយបត្រ ត្រូវបំពេញស្វ័យប្រវត្តិ",
+      cust_section:"ព័ត៌មានអតិថិជន", join_new:"ថ្មី", join_port:"ផ្លាស់ប្តូរបណ្ដាញ",
+      address:"អាសយដ្ឋាន", birth:"ថ្ងៃកំណើត", gender:"ភេទ", sel:"ជ្រើស", male:"ប្រុស", female:"ស្រី",
+      sim:"លេខស៊េរីស៊ីម", smslang:"ភាសា SMS",
+      portnum:"លេខត្រូវផ្លាស់ប្តូរ", prevcarrier:"បណ្ដាញដើម", mvnoname:"ឈ្មោះ MVNO",
+      usim_section:"ព័ត៌មាន USIM", usimfee:"ថ្លៃស៊ីម",
+      pay_section:"បង់បន្ត", payway:"វិធី", bank:"ធនាគារ", card:"កាត",
+      bankname:"ធនាគារ", account:"លេខគណនី", cardco:"ក្រុមហ៊ុនកាត", cardno:"លេខកាត",
+      expyear:"ឆ្នាំផុតកំណត់", expmonth:"ខែផុតកំណត់",
+      note_sign:"※ ចុះហត្ថលេខាក្រោយបោះពុម្ព",
+      addons:"សេវាបន្ថែម", intl:"បិទការហៅអន្តរជាតិ", roam:"បិទរោមីង",
+      reset:"កំណត់ឡើងវិញ", print:"បោះពុម្ព", savepdf:"រក្សាទុក PDF"}
+};
+function setLang(lang){
+  document.querySelectorAll('.langbtn').forEach(b=>b.classList.toggle('active', b.dataset.lang===lang));
+  const t=I18N[lang]||I18N.KR;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k=el.getAttribute('data-i18n'); if(t[k]) el.textContent=t[k];
+  });
+  // placeholders
+  document.getElementById('address').placeholder = lang==='US'?'Address':'도로명 주소';
+  document.getElementById('birth').placeholder   = lang==='US'?'YYMMDD or YYYYMMDD':'6 또는 8자리 숫자';
+}
+document.querySelectorAll('.langbtn').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.lang)));
+setLang('KR');
+</script>
 </body>
 </html>
