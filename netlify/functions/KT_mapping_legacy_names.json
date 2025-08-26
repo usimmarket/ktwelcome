@@ -1,0 +1,481 @@
+{
+  "plan": [
+    {
+      "page": 1,
+      "xPct": 75.74935486005427,
+      "yPct": 88.37226700581667,
+      "size": 10,
+      "align": "left",
+      "mode": "text",
+      "cond": ""
+    },
+    {
+      "page": 1,
+      "xPct": 27.15542910077417,
+      "yPct": 57.73654777713355,
+      "size": 12,
+      "align": "left",
+      "mode": "text",
+      "cond": ""
+    }
+  ],
+  "svc_summary": [
+    {
+      "page": 1,
+      "xPct": 27.8700456560577,
+      "yPct": 41.07206314175098,
+      "size": 12,
+      "align": "left",
+      "mode": "fixed-text",
+      "cond": "한국어",
+      "fixedText": "국제전화차단/로밍차단"
+    }
+  ],
+  "total_discount": [
+    {
+      "page": 1,
+      "xPct": 22.153113213789453,
+      "yPct": 85.84734509136476,
+      "size": 10,
+      "align": "left",
+      "mode": "text",
+      "cond": "",
+      "fixedText": "국제전화차단/로밍차단"
+    }
+  ],
+  "base_monthly_fee": [
+    {
+      "page": 1,
+      "xPct": 81.22808178389467,
+      "yPct": 87.19397011240576,
+      "size": 10,
+      "align": "left",
+      "mode": "text",
+      "cond": "",
+      "fixedText": "국제전화차단/로밍차단"
+    }
+  ],
+  "monthly_discount": [
+    {
+      "page": 1,
+      "xPct": 81.22808178389467,
+      "yPct": 85.67901696373463,
+      "size": 10,
+      "align": "left",
+      "mode": "text",
+      "cond": "",
+      "fixedText": "국제전화차단/로밍차단"
+    }
+  ],
+  "final_monthly_fee": [
+    {
+      "page": 1,
+      "xPct": 81.22808178389467,
+      "yPct": 84.33239194269362,
+      "size": 10,
+      "align": "left",
+      "mode": "text",
+      "cond": "",
+      "fixedText": "국제전화차단/로밍차단"
+    },
+    {
+      "page": 1,
+      "xPct": 74.7965327863429,
+      "yPct": 73.89604802962575,
+      "size": 10,
+      "align": "left",
+      "mode": "text",
+      "cond": "",
+      "fixedText": "국제전화차단/로밍차단"
+    },
+    {
+      "page": 1,
+      "xPct": 84.80116456031232,
+      "yPct": 73.89604802962575,
+      "size": 10,
+      "align": "left",
+      "mode": "text",
+      "cond": "",
+      "fixedText": "국제전화차단/로밍차단"
+    }
+  ],
+  "gender": [
+    {
+      "page": 3,
+      "xPct": 68.12677827036327,
+      "yPct": 71.87611049806422,
+      "size": 10,
+      "align": "left",
+      "mode": "check",
+      "cond": "남",
+      "fixedText": "국제전화차단/로밍차단"
+    },
+    {
+      "page": 3,
+      "xPct": 71.22345000992523,
+      "yPct": 71.87611049806422,
+      "size": 10,
+      "align": "left",
+      "mode": "check",
+      "cond": "여",
+      "fixedText": "국제전화차단/로밍차단"
+    }
+  ],
+  "birth": [
+    {
+      "page": 1,
+      "xPct": 57.64573545953815,
+      "yPct": 65.98462603100977,
+      "size": 10,
+      "align": "left",
+      "mode": "text",
+      "cond": "여",
+      "fixedText": "국제전화차단/로밍차단"
+    },
+    {
+      "page": 3,
+      "xPct": 46.4500760934295,
+      "yPct": 72.04443862569434,
+      "size": 10,
+      "align": "left",
+      "mode": "text",
+      "cond": "여",
+      "fixedText": "국제전화차단/로밍차단"
+    },
+    {
+      "page": 3,
+      "xPct": 83.13372593131741,
+      "yPct": 54.53831335216114,
+      "size": 10,
+      "align": "left",
+      "mode": "text",
+      "cond": "여",
+      "fixedText": "국제전화차단/로밍차단"
+    }
+  ],
+  "address": [
+    {
+      "page": 3,
+      "xPct": 22.62952425064514,
+      "yPct": 67.66790730731104,
+      "size": 10,
+      "align": "left",
+      "mode": "text",
+      "cond": "여",
+      "fixedText": "국제전화차단/로밍차단"
+    },
+    {
+      "page": 1,
+      "xPct": 23.82055184278436,
+      "yPct": 15.65451586960181,
+      "size": 10,
+      "align": "left",
+      "mode": "text",
+      "cond": "여",
+      "fixedText": "국제전화차단/로밍차단"
+    }
+  ],
+  "user_phone": [
+    {
+      "page": 3,
+      "xPct": 79.79884867332761,
+      "yPct": 71.87611049806422,
+      "size": 10,
+      "align": "left",
+      "mode": "text",
+      "cond": "여",
+      "fixedText": "국제전화차단/로밍차단"
+    }
+  ],
+  "wish4": [
+    {
+      "page": 1,
+      "xPct": 45.973665056573815,
+      "yPct": 59.9248134363252,
+      "size": 10,
+      "align": "left",
+      "mode": "text",
+      "cond": "여",
+      "fixedText": "국제전화차단/로밍차단"
+    }
+  ],
+  "join_type": [
+    {
+      "page": 1,
+      "xPct": 75.27294382319857,
+      "yPct": 93.92709521761086,
+      "size": 10,
+      "align": "left",
+      "mode": "check",
+      "cond": "신규",
+      "fixedText": "국제전화차단/로밍차단"
+    },
+    {
+      "page": 1,
+      "xPct": 79.56064315489976,
+      "yPct": 93.92709521761086,
+      "size": 10,
+      "align": "left",
+      "mode": "check",
+      "cond": "번호이동",
+      "fixedText": "국제전화차단/로밍차단"
+    }
+  ],
+  "port_number": [
+    {
+      "page": 1,
+      "xPct": 26.917223582346328,
+      "yPct": 35.34890680232667,
+      "size": 10,
+      "align": "left",
+      "mode": "text",
+      "cond": "번호이동",
+      "fixedText": "국제전화차단/로밍차단"
+    },
+    {
+      "page": 1,
+      "xPct": 26.917223582346328,
+      "yPct": 59.9248134363252,
+      "size": 10,
+      "align": "left",
+      "mode": "text",
+      "cond": "번호이동",
+      "fixedText": "국제전화차단/로밍차단"
+    }
+  ],
+  "prev_carrier": [
+    {
+      "page": 1,
+      "xPct": 69.31780586250248,
+      "yPct": 35.34890680232667,
+      "size": 10,
+      "align": "left",
+      "mode": "check",
+      "cond": "SK",
+      "fixedText": "국제전화차단/로밍차단"
+    },
+    {
+      "page": 1,
+      "xPct": 73.36729967577583,
+      "yPct": 35.34890680232667,
+      "size": 10,
+      "align": "left",
+      "mode": "check",
+      "cond": "LG U+",
+      "fixedText": "국제전화차단/로밍차단"
+    },
+    {
+      "page": 1,
+      "xPct": 79.08423211804407,
+      "yPct": 35.34890680232667,
+      "size": 10,
+      "align": "left",
+      "mode": "check",
+      "cond": "MVNO",
+      "fixedText": "국제전화차단/로밍차단"
+    }
+  ],
+  "mvno_name": [
+    {
+      "page": 1,
+      "xPct": 84.80116456031232,
+      "yPct": 35.34890680232667,
+      "size": 10,
+      "align": "left",
+      "mode": "text",
+      "cond": "MVNO",
+      "fixedText": "국제전화차단/로밍차단"
+    }
+  ],
+  "sim_serial": [
+    {
+      "page": 1,
+      "xPct": 37.1600608747436,
+      "yPct": 50.83509454429834,
+      "size": 10,
+      "align": "left",
+      "mode": "text",
+      "cond": "MVNO",
+      "fixedText": "국제전화차단/로밍차단"
+    }
+  ],
+  "payMethod": [
+    {
+      "page": 3,
+      "xPct": 22.153113213789453,
+      "yPct": 53.86500084164063,
+      "size": 10,
+      "align": "left",
+      "mode": "check",
+      "cond": "은행",
+      "fixedText": "국제전화차단/로밍차단"
+    },
+    {
+      "page": 3,
+      "xPct": 26.202607027062797,
+      "yPct": 53.86500084164063,
+      "size": 10,
+      "align": "left",
+      "mode": "check",
+      "cond": "카드",
+      "fixedText": "국제전화차단/로밍차단"
+    }
+  ],
+  "pref_langs": [
+    {
+      "page": 3,
+      "xPct": 35.25441672732085,
+      "yPct": 56.558250883722664,
+      "size": 10,
+      "align": "left",
+      "mode": "check",
+      "cond": "영어",
+      "fixedText": "국제전화차단/로밍차단"
+    },
+    {
+      "page": 3,
+      "xPct": 40.49493813273341,
+      "yPct": 56.558250883722664,
+      "size": 10,
+      "align": "left",
+      "mode": "check",
+      "cond": "중국어",
+      "fixedText": "국제전화차단/로밍차단"
+    },
+    {
+      "page": 3,
+      "xPct": 45.735459538145975,
+      "yPct": 56.558250883722664,
+      "size": 10,
+      "align": "left",
+      "mode": "check",
+      "cond": "베트남어",
+      "fixedText": "국제전화차단/로밍차단"
+    },
+    {
+      "page": 3,
+      "xPct": 52.405214054125594,
+      "yPct": 56.558250883722664,
+      "size": 10,
+      "align": "left",
+      "mode": "check",
+      "cond": "러시아어",
+      "fixedText": "국제전화차단/로밍차단"
+    },
+    {
+      "page": 3,
+      "xPct": 59.31317408853305,
+      "yPct": 56.558250883722664,
+      "size": 10,
+      "align": "left",
+      "mode": "check",
+      "cond": "한국어",
+      "fixedText": "국제전화차단/로밍차단"
+    }
+  ],
+  "bank_dob": [],
+  "bank_name": [
+    {
+      "page": 3,
+      "xPct": 49.54674783299147,
+      "yPct": 52.85503207585987,
+      "size": 10,
+      "align": "left",
+      "mode": "text",
+      "cond": "한국어",
+      "fixedText": "국제전화차단/로밍차단"
+    }
+  ],
+  "bank_account": [
+    {
+      "page": 3,
+      "xPct": 56.93111890425462,
+      "yPct": 52.85503207585987,
+      "size": 10,
+      "align": "left",
+      "mode": "text",
+      "cond": "한국어",
+      "fixedText": "국제전화차단/로밍차단"
+    }
+  ],
+  "card_company": [
+    {
+      "page": 3,
+      "xPct": 48.5939257592801,
+      "yPct": 52.85503207585987,
+      "size": 10,
+      "align": "left",
+      "mode": "text",
+      "cond": "한국어",
+      "fixedText": "국제전화차단/로밍차단"
+    }
+  ],
+  "card_number": [
+    {
+      "page": 3,
+      "xPct": 55.97829683054324,
+      "yPct": 52.85503207585987,
+      "size": 10,
+      "align": "left",
+      "mode": "text",
+      "cond": "한국어",
+      "fixedText": "국제전화차단/로밍차단"
+    }
+  ],
+  "card_exp_year": [
+    {
+      "page": 3,
+      "xPct": 84.80116456031232,
+      "yPct": 52.85503207585987,
+      "size": 10,
+      "align": "left",
+      "mode": "text",
+      "cond": "한국어",
+      "fixedText": "국제전화차단/로밍차단"
+    }
+  ],
+  "card_exp_month": [
+    {
+      "page": 3,
+      "xPct": 89.32706941044135,
+      "yPct": 52.85503207585987,
+      "size": 10,
+      "align": "left",
+      "mode": "text",
+      "cond": "한국어",
+      "fixedText": "국제전화차단/로밍차단"
+    }
+  ],
+  "apply_date": [
+    {
+      "page": 3,
+      "xPct": 11.195659366108648,
+      "yPct": 6.733125105205079,
+      "size": 14,
+      "align": "left",
+      "mode": "text",
+      "cond": "한국어",
+      "fixedText": "국제전화차단/로밍차단"
+    },
+    {
+      "page": 1,
+      "xPct": 10.957453847680805,
+      "yPct": 3.8715469354929204,
+      "size": 14,
+      "align": "left",
+      "mode": "text",
+      "cond": "한국어",
+      "fixedText": "국제전화차단/로밍차단"
+    },
+    {
+      "page": 8,
+      "xPct": 11.433864884536494,
+      "yPct": 6.059812594684571,
+      "size": 14,
+      "align": "left",
+      "mode": "text",
+      "cond": "한국어",
+      "fixedText": "국제전화차단/로밍차단"
+    }
+  ]
+}
