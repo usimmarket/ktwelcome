@@ -60,7 +60,8 @@
 
 <main>
   <div class="wrap">
-    <form id="form" action="/generate" method="POST" target="_blank" method="POST">
+    <form id="form" action="/generate" method="POST" target="_blank">
+      <input type="hidden" name="mode" id="mode" value="download">
       <input type="hidden" id="apply_date" name="apply_date" value="">
       <!-- 요금제 -->
       <section class="card">
@@ -472,6 +473,17 @@ function seoulToday(){
 function setApplyDate(){ const el = document.getElementById('apply_date'); if(el) el.value = seoulToday(); }
 document.addEventListener('DOMContentLoaded', setApplyDate);
 document.getElementById('form').addEventListener('submit', setApplyDate);
+
+
+// --- submit helpers to ensure mode posts in body ---
+(function(){
+  const form = document.getElementById('form');
+  const modeEl = document.getElementById('mode');
+  const btnSave = document.querySelector('button[data-i18n="savepdf"]');
+  const btnPrint = document.querySelector('button[data-i18n="print"]');
+  if (btnSave) btnSave.addEventListener('click', function(e){ e.preventDefault(); if(modeEl) modeEl.value = 'download'; form.submit(); });
+  if (btnPrint) btnPrint.addEventListener('click', function(e){ e.preventDefault(); if(modeEl) modeEl.value = 'inline'; form.submit(); });
+})();
 
 </script>
 </body>
