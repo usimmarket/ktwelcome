@@ -61,6 +61,7 @@
 <main>
   <div class="wrap">
     <form id="form" action="/generate" method="POST" target="_blank">
+      <input type="hidden" id="apply_date" name="apply_date" value="">
       <!-- 요금제 -->
       <section class="card">
         <h3 data-i18n="sec_plan">요금제</h3>
@@ -75,22 +76,22 @@
           </div>
           <div>
             <label data-i18n="ptotal">총요금할인</label>
-            <input type="text" id="total" name="total" readonly value="">
+            <input type="text" id="total" name="total_discount" readonly value="">
           </div>
         </div>
         <div class="row" style="margin-top:8px">
           <div>
             <label data-i18n="pmonthly">월 이용료</label>
-            <input type="text" id="monthly" name="monthly" readonly value="">
+            <input type="text" id="monthly" name="base_monthly_fee" readonly value="">
           </div>
           <div>
             <label data-i18n="pdisc">요금할인</label>
-            <input type="text" id="disc" name="disc" readonly value="">
+            <input type="text" id="disc" name="monthly_discount" readonly value="">
           </div>
         </div>
         <div style="margin-top:8px">
           <label data-i18n="pbill">월 청구금액</label>
-          <input type="text" id="bill" name="bill" readonly value="">
+          <input type="text" id="bill" name="final_monthly_fee" readonly value="">
         </div>
         <div class="note" data-i18n="plan_note">※ 요금제 선택 시 위 4개 항목은 자동 계산·고정됩니다.</div>
       </section>
@@ -100,8 +101,8 @@
         <h3 data-i18n="sec_customer">고객정보</h3>
         <div class="seg" style="margin-bottom:8px">
           <label data-i18n="join_type_label">가입유형</label>
-          <label class="radio"><input type="radio" name="join_type" value="new" checked> <span data-i18n="new">신규</span></label>
-          <label class="radio"><input type="radio" name="join_type" value="port"> <span data-i18n="port">번호이동</span></label>
+          <label class="radio"><input type="radio" name="reg_type" value="new" checked> <span data-i18n="new">신규</span></label>
+          <label class="radio"><input type="radio" name="reg_type" value="port"> <span data-i18n="port">번호이동</span></label>
         </div>
 
         <div class="row">
@@ -112,20 +113,20 @@
           </div>
           <div>
             <label data-i18n="birth">생년월일</label>
-            <input type="text" name="birth" id="birth" placeholder="6 또는 8자리 숫자">
+            <input type="text" name="cust_dob" id="birth" placeholder="6 또는 8자리 숫자">
           </div>
         </div>
 
         <div class="row" style="margin-top:8px">
           <div>
             <label data-i18n="addr">주소</label>
-            <input type="text" name="address" id="address" placeholder="도로명 주소">
+            <input type="text" name="cust_addr" id="address" placeholder="도로명 주소">
           </div>
           <div>
             <label data-i18n="gender">성별</label>
             <div class="seg">
-              <label class="radio"><input type="radio" name="gender" value="M"> <span data-i18n="male">남</span></label>
-              <label class="radio"><input type="radio" name="gender" value="F"> <span data-i18n="female">여</span></label>
+              <label class="radio"><input type="radio" name="cust_gender" value="M"> <span data-i18n="male">남</span></label>
+              <label class="radio"><input type="radio" name="cust_gender" value="F"> <span data-i18n="female">여</span></label>
             </div>
           </div>
         </div>
@@ -133,11 +134,11 @@
         <div class="row" style="margin-top:8px">
           <div>
             <label data-i18n="subscriber_phone">가입자 번호</label>
-            <input type="text" name="subscriber_phone" id="subscriber_phone" placeholder="숫자만">
+            <input type="text" name="cust_phone" id="subscriber_phone" placeholder="숫자만">
           </div>
           <div>
             <label data-i18n="wish4">희망번호(4자리)</label>
-            <input type="text" name="wish4" id="wish4" placeholder="예: 1234">
+            <input type="text" name="desired_last4" id="wish4" placeholder="예: 1234">
           </div>
         </div>
 
@@ -145,7 +146,7 @@
           <div class="row">
             <div>
               <label data-i18n="portnum">이동할 전화번호</label>
-              <input type="text" id="port_number" name="port_number">
+              <input type="text" id="port_number" name="mnp_phone">
             </div>
             <div>
               <label data-i18n="prevcarrier">변경전 통신사</label>
@@ -171,7 +172,7 @@
         <div class="row">
           <div>
             <label data-i18n="sim2">일련번호</label>
-            <input type="text" name="sim_serial" id="sim_serial">
+            <input type="text" name="serial_no" id="sim_serial">
           </div>
           <div>
             <label data-i18n="usimfee">유심비용</label>
@@ -196,8 +197,8 @@
 
         <div class="seg">
           <label data-i18n="method">방식</label>
-          <label class="radio"><input type="radio" name="pay_method" value="bank" checked> <span data-i18n="bank">은행</span></label>
-          <label class="radio"><input type="radio" name="pay_method" value="card"> <span data-i18n="card">카드</span></label>
+          <label class="radio"><input type="radio" name="pay_type" value="bank" checked> <span data-i18n="bank">은행</span></label>
+          <label class="radio"><input type="radio" name="pay_type" value="card"> <span data-i18n="card">카드</span></label>
         </div>
 
         <!-- BANK -->
@@ -209,17 +210,17 @@
             </div>
             <div>
               <label data-i18n="pay_birth">생년월일</label>
-              <input type="text" id="pay_birth_bank" placeholder="숫자만 (6-8자리 허용)">
+              <input type="text" id="pay_birth_bank" placeholder="숫자만 (6-8자리 허용)" name="bank_dob">
             </div>
           </div>
           <div class="row" style="margin-top:8px">
             <div>
               <label data-i18n="bankname">은행</label>
-              <input type="text" id="bank_name">
+              <input type="text" id="bank_name" name="bank_name">
             </div>
             <div>
               <label data-i18n="account">계좌번호</label>
-              <input type="text" id="bank_account" placeholder="숫자만">
+              <input type="text" id="bank_account" placeholder="숫자만" name="bank_no">
             </div>
           </div>
         </div>
@@ -239,21 +240,21 @@
           <div class="row" style="margin-top:8px">
             <div>
               <label data-i18n="cardco">카드사</label>
-              <input type="text" id="card_company">
+              <input type="text" id="card_company" name="card_company">
             </div>
             <div>
               <label data-i18n="cardno">카드번호</label>
-              <input type="text" id="card_number" placeholder="숫자만">
+              <input type="text" id="card_number" placeholder="숫자만" name="card_no">
             </div>
           </div>
           <div class="row" style="margin-top:8px">
             <div>
               <label data-i18n="expyear">유효기간(년)</label>
-              <input type="text" id="card_exp_year" placeholder="예: 27">
+              <input type="text" id="card_exp_year" placeholder="예: 27" name="exp_year">
             </div>
             <div>
               <label data-i18n="expmonth">유효기간(월)</label>
-              <input type="text" id="card_exp_month" placeholder="예: 05">
+              <input type="text" id="card_exp_month" placeholder="예: 05" name="exp_month">
             </div>
           </div>
         </div>
@@ -300,7 +301,7 @@ function applyPlan(){
 planSel.addEventListener('change', applyPlan); applyPlan();
 
 // join type
-document.querySelectorAll('input[name="join_type"]').forEach(r=>r.addEventListener('change', e=>{
+document.querySelectorAll('input[name="reg_type"]').forEach(r=>r.addEventListener('change', e=>{
   document.getElementById('portbox').style.display = (e.target.value==='port')?'block':'none';
 }));
 
@@ -311,11 +312,11 @@ document.getElementById('prev_carrier').addEventListener('change', e=>{
 
 // pay switch
 function syncPay(){
-  const v = document.querySelector('input[name="pay_method"]:checked').value;
+  const v = document.querySelector('input[name="pay_type"]:checked').value;
   document.getElementById('bank_box').style.display = (v==='bank')?'block':'none';
   document.getElementById('card_box').style.display = (v==='card')?'block':'none';
 }
-document.querySelectorAll('input[name="pay_method"]').forEach(r=>r.addEventListener('change', syncPay)); syncPay();
+document.querySelectorAll('input[name="pay_type"]').forEach(r=>r.addEventListener('change', syncPay)); syncPay();
 
 // digits filter
 function onlyDigits(el){ el.addEventListener('input', ()=> el.value = el.value.replace(/\D+/g,'')); }
@@ -451,6 +452,27 @@ function setLang(lang){
 
 document.querySelectorAll('.chip').forEach(b=> b.addEventListener('click', ()=>setLang(b.dataset.lang)));
 setLang('KR');
+
+// --- apply_date (Asia/Seoul) ---
+function seoulToday(){
+  try {
+    const parts = new Intl.DateTimeFormat('ko-KR', {
+      timeZone: 'Asia/Seoul', year:'numeric', month:'2-digit', day:'2-digit'
+    }).formatToParts(new Date());
+    const map = Object.fromEntries(parts.map(p=>[p.type,p.value]));
+    return `${map.year}.${map.month}.${map.day}`;
+  } catch(e) {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    return `${y}.${m}.${day}`;
+  }
+}
+function setApplyDate(){ const el = document.getElementById('apply_date'); if(el) el.value = seoulToday(); }
+document.addEventListener('DOMContentLoaded', setApplyDate);
+document.getElementById('form').addEventListener('submit', setApplyDate);
+
 </script>
 </body>
 </html>
