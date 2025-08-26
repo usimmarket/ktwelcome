@@ -1,6 +1,9 @@
 [build]
-command = ""
-publish = "public"
-[functions]
-directory = "netlify/functions"
-node_bundler = "esbuild"
+  functions = "netlify/functions"
+  publish   = "public"
+
+[[redirects]]
+  from = "/generate"
+  to   = "/.netlify/functions/generate"
+  status = 200
+  force  = true
