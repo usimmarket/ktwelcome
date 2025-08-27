@@ -8,6 +8,8 @@ const TEMPLATE_PDF_PATH = nodePath.join(__dirname, 'template.pdf');
 const FONT_PATH         = nodePath.join(__dirname, 'malgun.ttf');
 const MAP_PATH          = nodePath.join(__dirname, 'KT_mapping_legacy_names.json');
 
+const RAW_MAPPING = JSON.parse(fs.readFileSync(MAP_PATH, 'utf8'));
+
 const PLANS = {
   wel5: { title: '5G 웰컴5 (통화200분/25GB+5Mbps)', total: '177,000', monthly: '59,000', disc: '20,250', bill: '38,750' },
   wel3: { title: '5G 웰컴3 (통화200분/3GB+5Mbps)', total: '147,000', monthly: '49,000', disc: '15,550', bill: '33,450' },
@@ -37,8 +39,8 @@ exports.handler = async (event) => {
     
     set('svc_summary', '국제전화차단/로밍차단');
 
-    if (!fs.existsSync(TEMPLATE_PDF_PATH)) throw new Error('template.pdf not found in netlify/functions folder.');
-    if (!fs.existsSync(FONT_PATH)) throw new Error('malgun.ttf not found in netlify/functions folder.');
+    if (!fs.existsSync(TEMPLATE_PDF_PATH)) throw new Error('template.pdf not found');
+    if (!fs.existsSync(FONT_PATH))         throw new Error('malgun.ttf not found');
 
     const pdfBytes = fs.readFileSync(TEMPLATE_PDF_PATH);
     const fontBytes = fs.readFileSync(FONT_PATH);
