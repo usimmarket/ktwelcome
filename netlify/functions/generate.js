@@ -169,17 +169,19 @@ exports.handler = async (event) => {
 
     // 출력
     const out  = await pdfDoc.save();
-    const mode = (values.mode === 'inline') ? 'inline' : 'attachment';
+const qsMode = (event.queryStringParameters && event.queryStringParameters.mode) || '';
+const modeHint = (values.mode || data.mode || qsMode || '').toLowerCase();
+const disp = (modeHint === 'inline' || modeHint === 'print') ? 'inline' : 'attachment';
 
-    return {
-      statusCode: 200,
-      headers: {
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': `${mode}; filename="KT_WELCOME.pdf"`,
-      },
-      body: Buffer.from(out).toString('base64'),
-      isBase64Encoded: true,
-    };
+return {
+  statusCode: 200,
+  headers: {
+    'Content-Type': 'application/pdf',
+    'Content-Disposition': `${disp}; filename="KT_WELCOME.pdf"`,
+  },
+  body: Buffer.from(out).toString('base64'),
+  isBase64Encoded: true,
+};
   } catch (err) {
     return {
       statusCode: 500,
