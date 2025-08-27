@@ -1,17 +1,13 @@
-// netlify/functions/generate.js
+const nodePath = require('path');
+const fs = require('fs');
 const { PDFDocument } = require('pdf-lib');
 const fontkit = require('@pdf-lib/fontkit');
-const fs = require('fs');
-const path = require('path');
 const qs = require('qs');
-const path = require('path');
-const fs = require('fs');
-const { PDFDocument } = require('pdf-lib');
 const fontkit = require('@pdf-lib/fontkit');
 
-const TEMPLATE_PDF = path.join(__dirname, 'template.pdf');
-const FONT_PATH    = path.join(__dirname, 'malgun.ttf');
-const RAW_MAPPING  = require('./KT_mapping_legacy_names.json');
+const TEMPLATE_PDF_PATH = nodePath.join(__dirname, 'template.pdf');
+const FONT_PATH         = nodePath.join(__dirname, 'malgun.ttf');
+const MAP_PATH          = nodePath.join(__dirname, 'KT_mapping_legacy_names.json');
 
 const PLANS = {
   wel5: { title: '5G 웰컴5 (통화200분/25GB+5Mbps)', total: '177,000', monthly: '59,000', disc: '20,250', bill: '38,750' },
