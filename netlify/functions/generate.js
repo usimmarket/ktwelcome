@@ -168,11 +168,11 @@ exports.handler = async (event) => {
     }
 
     // 출력
-    const out  = await pdfDoc.save();
-const qsMode = (event.queryStringParameters && event.queryStringParameters.mode) || '';
-const modeHint = (values.mode || data.mode || qsMode || '').toLowerCase();
-const disp = (modeHint === 'inline' || modeHint === 'print') ? 'inline' : 'attachment';
-
+    const out = await pdfDoc.save();
+    const qsMode = (event.queryStringParameters && event.queryStringParameters.mode) || '';
+    const modeHint = String((values.mode || qsMode || '')).toLowerCase();
+    const disp = (modeHint === 'inline' || modeHint === 'print') ? 'inline' : 'attachment';
+    
 return {
   statusCode: 200,
   headers: {
