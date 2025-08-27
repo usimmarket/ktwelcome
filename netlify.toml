@@ -9,3 +9,8 @@
     "netlify/functions/malgun.ttf",
     "netlify/functions/KT_mapping_legacy_names.json"
   ]
+[[redirects]]
+  from   = "/generate"
+  to     = "/.netlify/functions/generate"
+  status = 200
+  force  = true
