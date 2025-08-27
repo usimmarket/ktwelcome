@@ -39,6 +39,55 @@ exports.handler = async (event) => {
     
     set('svc_summary', '국제전화차단/로밍차단');
 
+    // === [핵심] 한글/영문 키 동시 매핑 ===
+const ALIAS = {
+  // 요금제 섹션
+  plan: ['요금제'],
+  base_monthly_fee: ['월 이용료'],
+  total_discount: ['요금할인'],
+  final_monthly_fee: ['월 청구금액'],
+
+  // 날짜/기타
+  apply_date: ['신청일'],
+
+  // 고객정보
+  cust_name: ['가입자명'],
+  address: ['주소'],
+  birth: ['생년월일'],
+  gender: ['성별'],
+  sim_serial: ['유심 일련번호'],
+  pref_langs: ['문자안내 선호언어'],
+
+  // 은행/카드
+  bank_name: ['은행'],
+  bank_account: ['계좌번호'],
+  card_company: ['카드사'],
+  card_number: ['카드번호'],
+  card_exp_year: ['유효기간(년)'],
+  card_exp_month: ['유효기간(월)'],
+
+  // 번호/희망번호
+  cust_phone: ['가입자 번호'],
+  hope_number: ['희망번호'],
+};
+
+(function normalizeAliases() {
+  // 한글로만 채워졌어도 영문 키를 채워주고,
+  // 영문으로만 채워졌어도 한글 키를 채워줍니다.
+  for (const [canon, alts] of Object.entries(ALIAS)) {
+    // 우선 순위: 영문(canon) 값 → 없으면 한글(alts) 값 중 첫 번째 존재하는 것
+    const v =
+      values[canon] ??
+      alts.map(a => values[a]).find(v => v !== undefined && v !== null && v !== '');
+
+    if (v !== undefined && v !== null && v !== '') {
+      values[canon] = String(v);
+      alts.forEach(a => (values[a] = String(v)));
+    }
+  }
+})();
+
+
     if (!fs.existsSync(TEMPLATE_PDF_PATH)) throw new Error('template.pdf not found');
     if (!fs.existsSync(FONT_PATH))         throw new Error('malgun.ttf not found');
 
