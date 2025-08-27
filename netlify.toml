@@ -2,8 +2,14 @@
   functions = "netlify/functions"
   publish   = "public"
 
-[[redirects]]
-  from = "/generate"
-  to   = "/.netlify/functions/generate"
-  status = 200
-  force  = true
+[functions]
+  node_bundler = "esbuild"
+
+[[functions.included_files]]
+  path = "netlify/functions/template.pdf"
+
+[[functions.included_files]]
+  path = "netlify/functions/malgun.ttf"
+
+[[functions.included_files]]
+  path = "netlify/functions/KT_mapping_legacy_names.json"
