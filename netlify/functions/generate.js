@@ -3,7 +3,6 @@ const fs = require('fs');
 const { PDFDocument } = require('pdf-lib');
 const fontkit = require('@pdf-lib/fontkit');
 const qs = require('qs');
-const fontkit = require('@pdf-lib/fontkit');
 
 const TEMPLATE_PDF_PATH = nodePath.join(__dirname, 'template.pdf');
 const FONT_PATH         = nodePath.join(__dirname, 'malgun.ttf');
