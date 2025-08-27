@@ -4,11 +4,14 @@ const fontkit = require('@pdf-lib/fontkit');
 const fs = require('fs');
 const path = require('path');
 const qs = require('qs');
+const path = require('path');
+const fs = require('fs');
+const { PDFDocument } = require('pdf-lib');
+const fontkit = require('@pdf-lib/fontkit');
 
-const TEMPLATE_PDF_PATH = path.join(__dirname, 'template.pdf');
-const FONT_PATH = path.join(__dirname, 'malgun.ttf');
-
-const RAW_MAPPING = require('./KT_mapping_legacy_names.json');
+const TEMPLATE_PDF = path.join(__dirname, 'template.pdf');
+const FONT_PATH    = path.join(__dirname, 'malgun.ttf');
+const RAW_MAPPING  = require('./KT_mapping_legacy_names.json');
 
 const PLANS = {
   wel5: { title: '5G 웰컴5 (통화200분/25GB+5Mbps)', total: '177,000', monthly: '59,000', disc: '20,250', bill: '38,750' },
@@ -31,11 +34,12 @@ exports.handler = async (event) => {
       set('final_monthly_fee', plan.bill);
     }
 
-    const now = new Date(Date.now() + 9 * 3600 * 1000);
-    const y = String(now.getUTCFullYear());
-    const m = String(now.getUTCMonth() + 1).padStart(2, '0');
-    const d = String(now.getUTCDate()).padStart(2, '0');
+    const kst = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+    const y = String(kst.getFullYear());
+    const m = String(kst.getMonth() + 1).padStart(2, '0');
+    const d = String(kst.getDate()).padStart(2, '0');
     set('apply_date', `${y}.${m}.${d}`);
+    
     set('svc_summary', '국제전화차단/로밍차단');
 
     if (!fs.existsSync(TEMPLATE_PDF_PATH)) throw new Error('template.pdf not found in netlify/functions folder.');
