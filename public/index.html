@@ -1,18 +1,234 @@
 <!doctype html>
-<html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>KT WELCOME 가입신청서 테스트</title>
-<body style="font-family:system-ui,sans-serif;padding:24px;">
-<h2>서버 PDF 생성 테스트</h2>
-<form action="/generate" method="POST" target="_blank">
-  <label>요금제
-    <select name="plan">
-      <option value="wel5">5G 웰컴5</option>
-      <option value="wel3">5G 웰컴3</option>
-      <option value="wel1">5G 웰컴1</option>
-    </select>
-  </label>
-  <button type="submit" name="mode" value="download">PDF 저장</button>
-  <button type="submit" name="mode" value="inline">미리보기/인쇄</button>
-</form>
-<p style="margin-top:16px;color:#888">배포용 UI는 별도 index.html로 교체 가능.</p>
-</body></html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>KT WELCOME 가입신청서</title>
+  <style>
+    :root {
+      --bg: #0f1720;
+      --panel:#131c26;
+      --text:#e8f0fb;
+      --muted:#9fb4cc;
+      --accent:#2eaadc;
+      --line: rgba(255,255,255,.08);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; background:var(--bg); color:var(--text); font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Pretendard,Apple SD Gothic Neo,Noto Sans KR,Helvetica,Arial,'맑은 고딕',sans-serif;
+    }
+    .wrap{ max-width:1080px; margin:28px auto; padding:0 16px; }
+    header{
+      display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:16px;
+    }
+    h1{ font-size:22px; margin:0; font-weight:700 }
+    .lang{ display:flex; gap:8px }
+    .lang b{ background:#2a3441; color:#fff; padding:6px 10px; border-radius:999px; font-size:12px }
+    .panel{
+      background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px;
+      box-shadow: 0 6px 24px rgba(0,0,0,.25);
+    }
+    .grid{ display:grid; gap:14px }
+    .row{ display:grid; grid-template-columns:1fr 1fr; gap:14px }
+    .row3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px }
+    label{ font-size:12px; color:var(--muted); display:block; margin-bottom:6px }
+    input[type="text"], select{
+      width:100%; padding:12px 12px; border-radius:10px; border:1px solid var(--line);
+      background:#0c131b; color:var(--text); outline:none;
+    }
+    .radio, .checks{ display:flex; gap:14px; align-items:center; flex-wrap:wrap }
+    .bar{ height:1px; background:var(--line); margin:14px 0 }
+    .note{ color:var(--muted); font-size:12px }
+    .btns{ display:flex; gap:10px; justify-content:flex-end; margin-top:16px }
+    button{
+      padding:11px 14px; border-radius:10px; border:1px solid var(--line);
+      background:#203041; color:#fff; cursor:pointer; font-weight:600
+    }
+    button.primary{ background:var(--accent); color:#02121a }
+    .hidden{ display:none }
+    @media (max-width:800px){ .row,.row3{ grid-template-columns:1fr } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <header>
+      <h1>KT WELCOME 가입신청서</h1>
+      <div class="lang">
+        <b>KR</b><span style="color:var(--muted)">판매점 전용</span>
+      </div>
+    </header>
+
+    <form id="appForm" class="grid" method="POST" action="/generate" target="_blank" accept-charset="UTF-8">
+
+      <!-- 요금제 -->
+      <section class="panel grid">
+        <h2 style="margin:0 0 6px 0; font-size:16px">요금제</h2>
+        <div class="row">
+          <div>
+            <label>요금제</label>
+            <select name="plan" id="plan">
+              <option value="wel5">5G 웰컴5 (통화200분/25GB+5Mbps)</option>
+              <option value="wel3">5G 웰컴3 (통화200분/3GB+5Mbps)</option>
+              <option value="wel1">5G 웰컴1 (통화200분/1GB+3Mbps)</option>
+            </select>
+          </div>
+          <div>
+            <label class="note">요금제 선택 시 월 이용료/요금 할인/월 청구금액은 서버에서 자동 계산됩니다.</label>
+          </div>
+        </div>
+      </section>
+
+      <!-- 고객정보 -->
+      <section class="panel grid">
+        <h2 style="margin:0 0 6px 0; font-size:16px">고객정보</h2>
+        <div class="row">
+          <div>
+            <label>가입자명</label>
+            <input type="text" name="가입자명" placeholder="예: 홍길동" />
+          </div>
+          <div>
+            <label>주소</label>
+            <input type="text" name="주소" placeholder="도로명 주소" />
+          </div>
+        </div>
+        <div class="row3">
+          <div>
+            <label>생년월일 (6 또는 8자리)</label>
+            <input type="text" name="생년월일" placeholder="예: 990101" />
+          </div>
+          <div>
+            <label>성별</label>
+            <div class="radio">
+              <label><input type="radio" name="성별" value="남" /> 남</label>
+              <label><input type="radio" name="성별" value="여" /> 여</label>
+            </div>
+          </div>
+          <div>
+            <label>유심 일련번호</label>
+            <input type="text" name="유심 일련번호" placeholder="" />
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>가입자 번호</label>
+            <input type="text" name="가입자 번호" placeholder="" />
+          </div>
+          <div>
+            <label>희망번호</label>
+            <input type="text" name="희망번호" placeholder="예: 1234" />
+          </div>
+        </div>
+        <div>
+          <label>문자안내 선호언어</label>
+          <div class="checks">
+            <label><input type="checkbox" name="문자안내 선호언어" value="영어" /> 영어</label>
+            <label><input type="checkbox" name="문자안내 선호언어" value="중국어" /> 중국어</label>
+            <label><input type="checkbox" name="문자안내 선호언어" value="베트남어" /> 베트남어</label>
+            <label><input type="checkbox" name="문자안내 선호언어" value="러시아어" /> 러시아어</label>
+            <label><input type="checkbox" name="문자안내 선호언어" value="한국어" /> 한국어</label>
+          </div>
+        </div>
+      </section>
+
+      <!-- 자동이체 -->
+      <section class="panel grid">
+        <h2 style="margin:0 0 6px 0; font-size:16px">자동이체</h2>
+        <div class="radio">
+          <label><input type="radio" name="payMethod" value="bank" checked /> 은행</label>
+          <label><input type="radio" name="payMethod" value="card" /> 카드</label>
+        </div>
+
+        <!-- 은행 -->
+        <div id="bankBox" class="grid">
+          <div class="row">
+            <div>
+              <label>은행</label>
+              <input type="text" name="은행" />
+            </div>
+            <div>
+              <label>계좌번호</label>
+              <input type="text" name="계좌번호" />
+            </div>
+          </div>
+        </div>
+
+        <!-- 카드 -->
+        <div id="cardBox" class="grid hidden">
+          <div>
+            <label>카드사</label>
+            <input type="text" name="카드사" />
+          </div>
+          <div class="row">
+            <div>
+              <label>카드번호</label>
+              <input type="text" name="카드번호" />
+            </div>
+            <div>
+              <label>유효기간(년)</label>
+              <input type="text" name="유효기간(년)" placeholder="예: 27" />
+            </div>
+            <div>
+              <label>유효기간(월)</label>
+              <input type="text" name="유효기간(월)" placeholder="예: 05" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 부가서비스(고정 문구) -->
+      <section class="panel">
+        <h2 style="margin:0 0 6px 0; font-size:16px">부가서비스</h2>
+        <div class="note">※ 본 항목은 고정값입니다. (수정/선택 불가) – 국제전화 차단: 적용 / 로밍차단: 적용</div>
+      </section>
+
+      <input type="hidden" name="mode" id="mode" value="download" />
+
+      <div class="btns">
+        <button type="button" id="btnReset">초기화</button>
+        <button type="button" id="btnInline">미리보기/인쇄</button>
+        <button type="submit" class="primary" id="btnSave">PDF 저장</button>
+      </div>
+    </form>
+
+  </div>
+
+  <script>
+    const $ = (s, d=document) => d.querySelector(s);
+    const $all = (s, d=document) => Array.from(d.querySelectorAll(s));
+
+    // 은행/카드 토글
+    function syncPayUI(){
+      const v = $('input[name="payMethod"]:checked').value;
+      const bank = $('#bankBox');
+      const card = $('#cardBox');
+      bank.classList.toggle('hidden', v !== 'bank');
+      card.classList.toggle('hidden', v !== 'card');
+
+      // 전송 제외: 보이지 않는 쪽 input disabled
+      $all('#bankBox input').forEach(i => i.disabled = (v !== 'bank'));
+      $all('#cardBox input').forEach(i => i.disabled = (v !== 'card'));
+    }
+    $all('input[name="payMethod"]').forEach(i=> i.addEventListener('change', syncPayUI));
+    syncPayUI();
+
+    // 초기화
+    $('#btnReset').addEventListener('click', () => {
+      $('#appForm').reset();
+      syncPayUI();
+    });
+
+    // 미리보기/인쇄
+    $('#btnInline').addEventListener('click', () => {
+      $('#mode').value = 'inline';
+      $('#appForm').submit();           // /generate 로 새 탭에 inline PDF
+    });
+
+    // 저장
+    $('#btnSave').addEventListener('click', () => {
+      $('#mode').value = 'download';
+      // submit 은 기본 동작 (type=submit)
+    });
+  </script>
+</body>
+</html>
