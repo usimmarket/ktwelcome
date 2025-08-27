@@ -35,11 +35,10 @@ exports.handler = async (event) => {
     const y = String(kst.getFullYear());
     const m = String(kst.getMonth() + 1).padStart(2, '0');
     const d = String(kst.getDate()).padStart(2, '0');
-    set('apply_date', `${y}.${m}.${d}`);
-    
+    set('apply_date', `${y}.${m}.${d}`); 
     set('svc_summary', '국제전화차단/로밍차단');
 
-    // === [핵심] 한글/영문 키 동시 매핑 ===
+// === 한글/영문 키 동시 매핑 시작 ===
 const ALIAS = {
   // 요금제 섹션
   plan: ['요금제'],
@@ -47,8 +46,9 @@ const ALIAS = {
   total_discount: ['요금할인'],
   final_monthly_fee: ['월 청구금액'],
 
-  // 날짜/기타
+  // 신청일/요약
   apply_date: ['신청일'],
+  svc_summary: ['서비스요약'],
 
   // 고객정보
   cust_name: ['가입자명'],
@@ -58,7 +58,7 @@ const ALIAS = {
   sim_serial: ['유심 일련번호'],
   pref_langs: ['문자안내 선호언어'],
 
-  // 은행/카드
+  // 자동이체(은행/카드)
   bank_name: ['은행'],
   bank_account: ['계좌번호'],
   card_company: ['카드사'],
@@ -71,21 +71,19 @@ const ALIAS = {
   hope_number: ['희망번호'],
 };
 
-(function normalizeAliases() {
-  // 한글로만 채워졌어도 영문 키를 채워주고,
-  // 영문으로만 채워졌어도 한글 키를 채워줍니다.
+(function normalizeAliases () {
+  // 이 코드는 반드시 exports.handler 함수 안, values가 보이는 곳에 있어야 합니다.
   for (const [canon, alts] of Object.entries(ALIAS)) {
-    // 우선 순위: 영문(canon) 값 → 없으면 한글(alts) 값 중 첫 번째 존재하는 것
     const v =
       values[canon] ??
-      alts.map(a => values[a]).find(v => v !== undefined && v !== null && v !== '');
-
+      alts.map(a => values[a]).find(s => s !== undefined && s !== null && s !== '');
     if (v !== undefined && v !== null && v !== '') {
       values[canon] = String(v);
       alts.forEach(a => (values[a] = String(v)));
     }
   }
 })();
+// === 한글/영문 키 동시 매핑 끝 ===
 
 
     if (!fs.existsSync(TEMPLATE_PDF_PATH)) throw new Error('template.pdf not found');
