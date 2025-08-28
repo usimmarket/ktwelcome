@@ -1,0 +1,22 @@
+{
+  "apply_date": [
+    {
+      "page": 1,
+      "xPct": 23.1,
+      "yPct": 97.0,
+      "size": 10,
+      "align": "left",
+      "mode": "text"
+    }
+  ],
+  "svc_summary": [
+    {
+      "page": 1,
+      "xPct": 32.0,
+      "yPct": 57.0,
+      "size": 10,
+      "align": "left",
+      "mode": "text"
+    }
+  ]
+}

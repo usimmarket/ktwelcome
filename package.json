@@ -1,0 +1,18 @@
+{
+  "name": "kt-welcome-form",
+  "private": true,
+  "version": "1.0.0",
+  "description": "KT Welcome 신청서 - Netlify Functions + Static UI",
+  "scripts": {
+    "build": "echo Build handled by Netlify",
+    "test": "echo No tests && exit 0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "pdf-lib": "^1.17.1",
+    "@pdf-lib/fontkit": "^1.1.1",
+    "qs": "^6.11.2"
+  }
+}
