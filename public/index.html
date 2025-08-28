@@ -1,14 +1,6 @@
 <!doctype html>
 <html lang="ko">
 <head>
-<body>
-  <!-- ▼ 폼 시작: 이 안에 모든 입력들이 들어가야 합니다 ▼ -->
-  <form id="appForm"
-        action="/.netlify/functions/generate"
-        method="POST"
-        target="_blank">
-    <!-- 서버에게 전송할 모드값(저장/인쇄/디버그)을 담는 히든필드 -->
-    <input type="hidden" name="mode" id="modeHidden" value="">  
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>KT WELCOME</title>
@@ -70,7 +62,6 @@
   <div class="wrap">
     <form id="form" action="/generate" method="POST" target="_blank">
       <!-- 요금제 -->
-      <select id="plan" name="plan"> … </select>
       <section class="card">
         <h3 data-i18n="sec_plan">요금제</h3>
         <div class="row">
@@ -222,8 +213,8 @@
           </div>
           <div class="row" style="margin-top:8px">
             <div>
-              <label data-i18n="bankname">은행명</label>
-              <input type="text" id="bank_name" name="bank_name">
+              <label data-i18n="bankname">은행</label>
+              <input type="text" id="bank_name">
             </div>
             <div>
               <label data-i18n="account">계좌번호</label>
@@ -284,184 +275,110 @@
     <div class="fixbar">
       <div class="wrap">
         <button type="reset" class="btn secondary" form="form" data-i18n="reset">초기화</button>
-        <button type="button" class="btn" id="btn-save"  data-i18n="savepdf">PDF 저장</button>
-        <button type="button" class="btn" id="btn-print" data-i18n="print">미리보기/인쇄</button>
+        <button type="submit" class="btn" form="form" formaction="/generate" formtarget="_blank" data-i18n="savepdf">PDF 저장</button>
+        <button type="submit" class="btn" form="form" formaction="/generate?mode=print" formtarget="_blank" data-i18n="print">인쇄</button>
       </div>
     </div>
 
 </main>
 
 <script>
+// === 비용표 (요금제 선택 시 자동 계산) ===
 const PLANS = {
-  wel5:{monthly:"59,000", disc:"20,250", total:"177,000", bill:"38,750"},
-  wel3:{monthly:"49,000", disc:"15,550", total:"147,000", bill:"33,450"},
-  wel1:{monthly:"39,000", disc:"13,050", total:"117,000", bill:"25,950"}
+  wel5: { monthly: "59,000", disc: "20,250", total: "177,000", bill: "38,750" },
+  wel3: { monthly: "49,000", disc: "15,550", total: "147,000", bill: "33,450" },
+  wel1: { monthly: "39,000", disc: "13,050", total: "117,000", bill: "25,950" },
 };
+
 const planSel = document.getElementById('plan');
-function applyPlan(){
-  const p = PLANS[planSel.value]; if(!p) return;
+function applyPlan() {
+  const p = PLANS[planSel.value];
+  if (!p) return;
   document.getElementById('monthly').value = p.monthly;
   document.getElementById('disc').value    = p.disc;
   document.getElementById('total').value   = p.total;
   document.getElementById('bill').value    = p.bill;
 }
-planSel.addEventListener('change', applyPlan); applyPlan();
+planSel.addEventListener('change', applyPlan);
+applyPlan();
 
-// join type
-document.querySelectorAll('input[name="join_type"]').forEach(r=>{
-  r.addEventListener('change', e=>{
-    document.getElementById('portbox').style.display = (e.target.value==='port')?'block':'none';
+// === 가입유형에 따른 표시 ===
+document.querySelectorAll('input[name="join_type"]').forEach(r => r.addEventListener('change', e => {
+  document.getElementById('portbox').style.display = (e.target.value === 'port') ? 'block' : 'none';
+}));
+
+// === 번호이동 통신사 MVNO 입력칸 토글 ===
+document.getElementById('prev_carrier').addEventListener('change', e => {
+  document.getElementById('mvnobox').style.display = (e.target.value === 'MVNO') ? 'block' : 'none';
+});
+
+// === 은행/카드 선택 시 필드 토글 ===
+document.querySelectorAll('input[name="pay_method"]').forEach(r => r.addEventListener('change', e => {
+  const bankOn = e.target.value === 'bank';
+  document.getElementById('bankbox').style.display = bankOn ? 'block' : 'none';
+  document.getElementById('cardbox').style.display = bankOn ? 'none'  : 'block';
+}));
+
+// === 다국어 전환 ===
+const i18n = {
+  KR: { reset: "초기화", savedpdf:"PDF 저장", print:"인쇄" },
+  US: { reset: "Reset", savepdf:"Save PDF", print:"Print" },
+  VN: { reset: "Đặt lại", savepdf:"Lưu PDF", print:"In" },
+  TH: { reset: "รีเซ็ต", savepdf:"บันทึก PDF", print:"พิมพ์" },
+  KH: { reset: "កំណត់ឡើងវិញ", savepdf:"រក្សាទុក PDF", print:"បោះពុម្ព" }
+};
+document.querySelectorAll('.lang button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      el.textContent = (i18n[btn.textContent] && i18n[btn.textContent][key]) || el.textContent;
+    });
   });
 });
 
-// MVNO
-document.getElementById('prev_carrier').addEventListener('change', e=>{
-  document.getElementById('mvno_box').style.display = (e.target.value==='MVNO')?'block':'none';
-});
+// === 서버 PDF 생성 호출 ===
+const formEl  = document.getElementById('form');
+const btnSave = document.querySelector('button[data-i18n="savedpdf"]');
+const btnPrint= document.querySelector('button[data-i18n="print"]');
 
-// pay switch
-function syncPay(){
-  const v = document.querySelector('input[name="pay_method"]:checked').value;
-  document.getElementById('bank_box').style.display = (v==='bank')?'block':'none';
-  document.getElementById('card_box').style.display = (v==='card')?'block':'none';
-}
-document.querySelectorAll('input[name="pay_method"]').forEach(r=>r.addEventListener('change', syncPay)); syncPay();
+async function postToServer(mode) {
+  // FormData -> x-www-form-urlencoded 변환
+  const fd = new FormData(formEl);
+  fd.set('mode', mode); // 서버가 inline/attachment 판단에 사용
+  const body = new URLSearchParams(fd);
 
-// digits filter
-function onlyDigits(el){ el.addEventListener('input', ()=> el.value = el.value.replace(/\D+/g,'')); }
-['birth','subscriber_phone','wish4','port_number','pay_birth_bank','bank_account','pay_birth_card','card_number','card_exp_year','card_exp_month']
-  .forEach(id=>{ const el=document.getElementById(id); if(el) onlyDigits(el); });
+  const res = await fetch('/.netlify/functions/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+    body: body.toString(),
+  });
 
-// I18N maps
-const I18N = {
-  KR: {
-    pagetitle:"KT WELCOME 가입신청서", dealer_only:"판매점 전용",
-    sec_plan:"요금제", plan:"요금제", ptotal:"총요금할인", pmonthly:"월 이용료", pdisc:"요금할인", pbill:"월 청구금액",
-    plan_note:"※ 요금제 선택 시 위 4개 항목은 자동 계산·고정됩니다.",
-    sec_customer:"고객정보", join_type_label:"가입유형", new:"신규", port:"번호이동", addr:"주소", birth:"생년월일",
-    gender:"성별", male:"남", female:"여", subscriber:"가입자명",
-    subscriber_phone:"가입자 번호", wish4:"희망번호(4자리)",
-    portnum:"이동할 전화번호", prevcarrier:"변경전 통신사", mvnoname:"통신사명(MVNO)",
-    sec_usim:"유심정보", sim2:"일련번호", usimfee:"유심비용",
-    sec_pay:"자동이체", prefsms:"문자안내 선호언어", method:"방식", bank:"은행", card:"카드",
-    holder_fixed:"예금주명", bankname:"은행명", account:"계좌번호",
-    cardholder_fixed:"카드주명", cardco:"카드사", cardno:"카드번호", expyear:"유효기간(년)", expmonth:"유효기간(월)",
-    pay_birth:"생년월일",
-    handwrite:"성함과 사인은 직접 작성 필수",
-    note:"※ 가입자명/예금주명/카드주명은 자필 작성(출력 후)",
-    sec_addon:"부가서비스", addon_fixed:"※ 본 항목은 고정값입니다. (수정/선택 불가)",
-    intl_block:"국제전화 차단: 적용", roam_block:"로밍차단: 적용",
-    reset:"초기화", savepdf:"PDF 저장", print:"인쇄", sel:"선택"
-  },
-  US: {
-    pagetitle:"KT WELCOME Application", dealer_only:"For Dealers",
-    sec_plan:"Plan", plan:"Plan", ptotal:"Total Discount", pmonthly:"Monthly Fee", pdisc:"Plan Discount", pbill:"Monthly Bill Amount",
-    plan_note:"When you select a plan, the four fields above are auto‑calculated and locked.",
-    sec_customer:"Customer Information", join_type_label:"Subscription Type", new:"New", port:"Port‑in", addr:"Address", birth:"Date of Birth",
-    gender:"Gender", male:"Male", female:"Female", subscriber:"Subscriber Name",
-    subscriber_phone:"Subscriber Phone", wish4:"Preferred last 4 digits",
-    portnum:"Number to port", prevcarrier:"Previous Carrier", mvnoname:"MVNO Name",
-    sec_usim:"SIM Information", sim2:"Serial Number", usimfee:"USIM Fee",
-    sec_pay:"Auto Payment", prefsms:"SMS Language", method:"Method", bank:"Bank", card:"Card",
-    holder_fixed:"Account Holder", bankname:"Bank", account:"Account Number",
-    cardholder_fixed:"Card Holder", cardco:"Card Company", cardno:"Card Number", expyear:"Expiry (Year)", expmonth:"Expiry (Month)",
-    pay_birth:"Date of Birth",
-    handwrite:"Handwritten name & signature required",
-    note:"Subscriber/holder name must be handwritten after printing.",
-    sec_addon:"Add‑on Services", addon_fixed:"This section is fixed (not editable/selectable).",
-    intl_block:"International Call Block: Applied", roam_block:"Roaming Block: Applied",
-    reset:"Reset", savepdf:"Save PDF", print:"Print", sel:"Select"
-  },
-  VN: {
-    pagetitle:"Đơn đăng ký KT WELCOME", dealer_only:"Dành cho đại lý",
-    sec_plan:"Gói cước", plan:"Gói cước", ptotal:"Tổng giảm giá", pmonthly:"Phí hàng tháng", pdisc:"Giảm giá gói", pbill:"Số tiền thanh toán hàng tháng",
-    plan_note:"Khi chọn gói, 4 mục phía trên sẽ được tính tự động và cố định.",
-    sec_customer:"Thông tin khách hàng", join_type_label:"Loại đăng ký", new:"Mới", port:"Chuyển mạng", addr:"Địa chỉ", birth:"Ngày sinh",
-    gender:"Giới tính", male:"Nam", female:"Nữ", subscriber:"Tên người đăng ký",
-    subscriber_phone:"SĐT người đăng ký", wish4:"4 số mong muốn",
-    portnum:"Số cần chuyển", prevcarrier:"Nhà mạng trước", mvnoname:"Tên MVNO",
-    sec_usim:"Thông tin USIM", sim2:"Số serial", usimfee:"Phí USIM",
-    sec_pay:"Thanh toán tự động", prefsms:"Ngôn ngữ SMS", method:"Phương thức", bank:"Ngân hàng", card:"Thẻ",
-    holder_fixed:"Chủ tài khoản", bankname:"Ngân hàng", account:"Số tài khoản",
-    cardholder_fixed:"Chủ thẻ", cardco:"Công ty thẻ", cardno:"Số thẻ", expyear:"HSD (Năm)", expmonth:"HSD (Tháng)",
-    pay_birth:"Ngày sinh",
-    handwrite:"Yêu cầu ghi tay họ tên & chữ ký",
-    note:"Tên người đăng ký/chủ TK/chủ thẻ viết tay (sau khi in).",
-    sec_addon:"Dịch vụ bổ sung", addon_fixed:"Mục này là cố định (không thể chỉnh/sửa chọn).",
-    intl_block:"Chặn gọi quốc tế: Áp dụng", roam_block:"Chặn roaming: Áp dụng",
-    reset:"Làm mới", savepdf:"Lưu PDF", print:"In", sel:"Chọn"
-  },
-  TH: {
-    pagetitle:"แบบฟอร์มสมัคร KT WELCOME", dealer_only:"สำหรับตัวแทนจำหน่าย",
-    sec_plan:"แพ็กเกจ", plan:"แพ็กเกจ", ptotal:"ส่วนลดรวม", pmonthly:"ค่าบริการรายเดือน", pdisc:"ส่วนลดแพ็กเกจ", pbill:"ยอดเรียกเก็บรายเดือน",
-    plan_note:"เมื่อเลือกแพ็กเกจ ช่อง 4 ช่องด้านบนจะถูกคำนวณและล็อกอัตโนมัติ.",
-    sec_customer:"ข้อมูลลูกค้า", join_type_label:"ประเภทการสมัคร", new:"เปิดเบอร์ใหม่", port:"ย้ายค่าย", addr:"ที่อยู่", birth:"วันเกิด",
-    gender:"เพศ", male:"ชาย", female:"หญิง", subscriber:"ชื่อผู้สมัคร",
-    subscriber_phone:"เบอร์ผู้สมัคร", wish4:"เลข 4 ตัวที่ต้องการ",
-    portnum:"เบอร์ที่จะย้าย", prevcarrier:"เครือข่ายเดิม", mvnoname:"ชื่อ MVNO",
-    sec_usim:"ข้อมูลซิม", sim2:"หมายเลขซีเรียล", usimfee:"ค่าซิม",
-    sec_pay:"ตัดบัตร/บัญชีอัตโนมัติ", prefsms:"ภาษาข้อความ", method:"วิธีการ", bank:"บัญชีธนาคาร", card:"บัตร",
-    holder_fixed:"ชื่อเจ้าของบัญชี", bankname:"ธนาคาร", account:"เลขที่บัญชี",
-    cardholder_fixed:"ชื่อผู้ถือบัตร", cardco:"บริษัทบัตร", cardno:"หมายเลขบัตร", expyear:"หมดอายุ(ปี)", expmonth:"หมดอายุ(เดือน)",
-    pay_birth:"วันเกิด",
-    handwrite:"ต้องเขียนชื่อและลายเซ็นด้วยลายมือ",
-    note:"ชื่อผู้สมัคร/เจ้าของบัญชี/ผู้ถือบัตร เขียนด้วยลายมือ (หลังพิมพ์).",
-    sec_addon:"บริการเสริม", addon_fixed:"หัวข้อนี้ถูกกำหนดตายตัว (แก้ไข/เลือกไม่ได้).",
-    intl_block:"บล็อกโทรต่างประเทศ: ใช้งาน", roam_block:"บล็อกโรมมิ่ง: ใช้งาน",
-    reset:"ล้าง", savepdf:"บันทึก PDF", print:"พิมพ์", sel:"เลือก"
-  },
-  KH: {
-    pagetitle:"បែបបទចុះឈ្មោះ KT WELCOME", dealer_only:"សម្រាប់ភ្នាក់ងារ",
-    sec_plan:"គម្រោងសេវា", plan:"គម្រោងសេវា", ptotal:"បញ្ចុះតម្លៃសរុប", pmonthly:"ថ្លៃប្រចាំខែ", pdisc:"បញ្ចុះតម្លៃគម្រោង", pbill:"ចំណាយប្រចាំខែ",
-    plan_note:"ពេលជ្រើសគម្រោង វាល 4 ខាងលើ នឹងគណនាអត់ចរាចរនិងត្រូវបានចាក់សោ.",
-    sec_customer:"ព័ត៌មានអតិថិជន", join_type_label:"ប្រភេទការចុះឈ្មោះ", new:"ថ្មី", port:"ផ្លាស់ប្ដូរចូល", addr:"អាសយដ្ឋាន", birth:"ថ្ងៃខែឆ្នាំកំណើត",
-    gender:"ភេទ", male:"ប្រុស", female:"ស្រី", subscriber:"ឈ្មោះអ្នកចុះឈ្មោះ",
-    subscriber_phone:"លេខអ្នកចុះឈ្មោះ", wish4:"លេខចុង 4 ចង់បាន",
-    portnum:"លេខត្រូវផ្លាស់ប្ដូរ", prevcarrier:"បណ្តាញចាស់", mvnoname:"ឈ្មោះ MVNO",
-    sec_usim:"ព័ត៌មាន USIM", sim2:"លេខសៀរៀល", usimfee:"ថ្លៃ USIM",
-    sec_pay:"បង់ប្រាក់ស្វ័យប្រវត្តិ", prefsms:"ភាសាសារ", method:"វិធីសាស្ត្រ", bank:"ធនាគារ", card:"កាត",
-    holder_fixed:"អ្នកកាន់គណនី", bankname:"ធនាគារ", account:"លេខគណនី",
-    cardholder_fixed:"អ្នកកាន់កាត", cardco:"ក្រុមហ៊ុនកាត", cardno:"លេខកាត", expyear:"ផុតកំណត់ (ឆ្នាំ)", expmonth:"ផុតកំណត់ (ខែ)",
-    pay_birth:"ថ្ងៃខែឆ្នាំកំណើត",
-    handwrite:"ត្រូវសរសេរឈ្មោះ និងហត្ថលេខាដោយដៃ",
-    note:"ឈ្មោះអ្នកចុះឈ្មោះ/អ្នកកាន់គណនី/អ្នកកាន់កាត សូមសរសេរដោយដៃ (ក្រោយព្រីន).",
-    sec_addon:"សេវាបន្ថែម", addon_fixed:"ផ្នែកនេះជាតម្លៃថេរ (មិនអាចកែ/ជ្រើស).",
-    intl_block:"បិទហៅអន្តរជាតិ៖ អនុវត្ត", roam_block:"បិទរ៉ូមីង៖ អនុវត្ត",
-    reset:"កំណត់ឡើងវិញ", savepdf:"រក្សាទុក PDF", print:"បោះពុម្ព", sel:"ជ្រើស"
+  if (!res.ok) {
+    const msg = await res.text().catch(()=>'');
+    alert('서버 오류:\n' + msg);
+    return;
   }
-};
 
-function setLang(lang){
-  document.querySelectorAll('.chip').forEach(b=>b.classList.toggle('active', b.dataset.lang===lang));
-  const pack = (I18N[lang] || I18N.KR);
-  document.querySelectorAll('[data-i18n]').forEach(el=>{ const k = el.getAttribute('data-i18n'); if (pack[k]) el.textContent = pack[k]; });
+  const blob = await res.blob();
+  const url  = URL.createObjectURL(blob);
 
-  // placeholders
-  const trans = pack;
-  const setPH=(id, text)=>{ const el=document.getElementById(id); if(el) el.placeholder=text; };
-  // address
-  setPH('address', lang==='US' ? 'Street address' : lang==='VN' ? 'Địa chỉ đường' : lang==='TH' ? 'ที่อยู่ถนน' : lang==='KH' ? 'អាសយដ្ឋាន' : '도로명 주소');
-  // DOB
-  const dobPH = lang==='US' ? 'Digits only (6–8)' : lang==='VN' ? 'Chỉ số (6–8)' : lang==='TH' ? 'ตัวเลขเท่านั้น (6–8)' : lang==='KH' ? 'លេខត្រឹមតែ (6–8)' : '6 또는 8자리 숫자';
-  setPH('birth', dobPH); setPH('pay_birth_bank', dobPH); setPH('pay_birth_card', dobPH);
-  // digits only
-  const digitsPH = lang==='US' ? 'Digits only' : lang==='VN' ? 'Chỉ số' : lang==='TH' ? 'ตัวเลขเท่านั้น' : lang==='KH' ? 'តែលេខ' : '숫자만';
-  setPH('subscriber_phone', digitsPH); setPH('bank_account', digitsPH); setPH('card_number', digitsPH);
-  // handwrite placeholder for 3 fields
-  const hw = trans.handwrite || '성함과 사인은 직접 작성 필수';
-  setPH('subscriber_name', hw); setPH('holder_bank', hw); setPH('holder_card', hw);
-  // examples
-  setPH('wish4', lang==='US'?'e.g., 1234':lang==='VN'?'VD: 1234':lang==='TH'?'เช่น 1234':lang==='KH'?'ឧ. 1234':'예: 1234');
-  setPH('card_exp_year', lang==='US'?'e.g., 27':lang==='VN'?'VD: 27':lang==='TH'?'เช่น 27':lang==='KH'?'ឧ. 27':'예: 27');
-  setPH('card_exp_month', lang==='US'?'e.g., 05':lang==='VN'?'VD: 05':lang==='TH'?'เช่น 05':lang==='KH'?'ឧ. 05':'예: 05');
-
-  // select placeholder
-  document.querySelectorAll('#prev_carrier option[value=""]').forEach(o=>o.textContent = pack.sel || '선택');
+  if (mode === 'print') {
+    // 새 탭에서 미리보기(브라우저 PDF 뷰어)
+    window.open(url, '_blank');
+  } else {
+    // 다운로드
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'KT_WELCOME.pdf';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
 }
 
-document.querySelectorAll('.chip').forEach(b=> b.addEventListener('click', ()=>setLang(b.dataset.lang)));
-setLang('KR');
+btnSave.addEventListener('click', (e) => { e.preventDefault(); postToServer('download'); });
+btnPrint.addEventListener('click', (e) => { e.preventDefault(); postToServer('print'); });
 </script>
-</form>  
 </body>
 </html>
