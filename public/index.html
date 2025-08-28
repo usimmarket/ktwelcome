@@ -1,6 +1,14 @@
 <!doctype html>
 <html lang="ko">
 <head>
+<body>
+  <!-- ▼ 폼 시작: 이 안에 모든 입력들이 들어가야 합니다 ▼ -->
+  <form id="appForm"
+        action="/.netlify/functions/generate"
+        method="POST"
+        target="_blank">
+    <!-- 서버에게 전송할 모드값(저장/인쇄/디버그)을 담는 히든필드 -->
+    <input type="hidden" name="mode" id="modeHidden" value="">  
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>KT WELCOME</title>
@@ -62,6 +70,7 @@
   <div class="wrap">
     <form id="form" action="/generate" method="POST" target="_blank">
       <!-- 요금제 -->
+      <select id="plan" name="plan"> … </select>
       <section class="card">
         <h3 data-i18n="sec_plan">요금제</h3>
         <div class="row">
@@ -214,7 +223,7 @@
           <div class="row" style="margin-top:8px">
             <div>
               <label data-i18n="bankname">은행명</label>
-              <input type="text" id="bank_name">
+              <input type="text" id="bank_name" name="bank_name">
             </div>
             <div>
               <label data-i18n="account">계좌번호</label>
@@ -275,8 +284,8 @@
     <div class="fixbar">
       <div class="wrap">
         <button type="reset" class="btn secondary" form="form" data-i18n="reset">초기화</button>
-        <button type="submit" class="btn" form="form" formaction="/generate" formtarget="_blank" data-i18n="savepdf">PDF 저장</button>
-        <button type="submit" class="btn" form="form" formaction="/generate?mode=print" formtarget="_blank" data-i18n="print">인쇄</button>
+        <button type="button" class="btn" id="btn-save"  data-i18n="savepdf">PDF 저장</button>
+        <button type="button" class="btn" id="btn-print" data-i18n="print">미리보기/인쇄</button>
       </div>
     </div>
 
@@ -292,16 +301,18 @@ const planSel = document.getElementById('plan');
 function applyPlan(){
   const p = PLANS[planSel.value]; if(!p) return;
   document.getElementById('monthly').value = p.monthly;
-  document.getElementById('disc').value = p.disc;
-  document.getElementById('total').value = p.total;
-  document.getElementById('bill').value = p.bill;
+  document.getElementById('disc').value    = p.disc;
+  document.getElementById('total').value   = p.total;
+  document.getElementById('bill').value    = p.bill;
 }
 planSel.addEventListener('change', applyPlan); applyPlan();
 
 // join type
-document.querySelectorAll('input[name="join_type"]').forEach(r=>r.addEventListener('change', e=>{
-  document.getElementById('portbox').style.display = (e.target.value==='port')?'block':'none';
-}));
+document.querySelectorAll('input[name="join_type"]').forEach(r=>{
+  r.addEventListener('change', e=>{
+    document.getElementById('portbox').style.display = (e.target.value==='port')?'block':'none';
+  });
+});
 
 // MVNO
 document.getElementById('prev_carrier').addEventListener('change', e=>{
@@ -451,5 +462,6 @@ function setLang(lang){
 document.querySelectorAll('.chip').forEach(b=> b.addEventListener('click', ()=>setLang(b.dataset.lang)));
 setLang('KR');
 </script>
+</form>  
 </body>
 </html>
