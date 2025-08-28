@@ -277,6 +277,11 @@
         <button type="reset" class="btn secondary" form="form" data-i18n="reset">초기화</button>
         <button type="submit" class="btn" form="form" formaction="/generate" formtarget="_blank" data-i18n="savepdf">PDF 저장</button>
         <button type="submit" class="btn" form="form" formaction="/generate?mode=print" formtarget="_blank" data-i18n="print">인쇄</button>
+        <button type="submit"
+        class="btn"
+        form="form"
+        formaction="/generate?mode=debug"
+        formtarget="_blank">전송 데이터 보기(디버그)</button>
       </div>
     </div>
 
@@ -289,11 +294,6 @@ const PLANS = {
   wel3: { monthly: "49,000", disc: "15,550", total: "147,000", bill: "33,450" },
   wel1: { monthly: "39,000", disc: "13,050", total: "117,000", bill: "25,950" },
 };
-<button type="submit"
-        class="btn"
-        form="form"
-        formaction="/generate?mode=debug"
-        formtarget="_blank">전송 데이터 보기(디버그)</button>
   
 const planSel = document.getElementById('plan');
 function applyPlan() {
