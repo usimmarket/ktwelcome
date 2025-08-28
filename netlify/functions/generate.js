@@ -19,14 +19,15 @@ const PLANS = {
 
 // ===== ① 그룹 동기화 유틸 (동일 의미의 여러 키를 모두 채움) =====
 const KEY_GROUPS = [
+  // 요금제/요약
   ['plan', 'plan_name', '요금제'],
-
   ['base_monthly_fee', '월 이용료'],
   ['total_discount', '요금할인'],
   ['final_monthly_fee', '월 청구금액'],
   ['apply_date', '신청일'],
   ['svc_summary', '서비스요약'],
 
+  // 고객정보
   ['cust_name', '가입자명'],
   ['address', 'cust_addr', '주소'],
   ['birth', 'cust_dob', '생년월일'],
@@ -34,15 +35,21 @@ const KEY_GROUPS = [
   ['sim_serial', '유심 일련번호', '유심일련번호'],
   ['pref_langs', '문자안내 선호언어', '문자안내_선호언어'],
 
-  ['bank_name', '은행'],
+  // 자동이체(은행/카드)
+  ['bank_name', '은행', '은행명'],
   ['bank_account', '계좌번호'],
   ['card_company', '카드사'],
   ['card_number', '카드번호'],
   ['card_exp_year', '유효기간(년)'],
   ['card_exp_month', '유효기간(월)'],
 
-  ['cust_phone', '가입자 번호'],
+  // 번호/희망번호/번호이동 관련
+  ['cust_phone', '가입자 번호', '이동할 전화번호'],
   ['hope_number', '희망번호'],
+  ['join_type', '가입유형'],               // 신규/번호이동
+  ['prev_carrier', '변경전 통신사'],         // SKT/LG U+/KT/MVNO
+  ['mvno_name', '통신사명(MVNO)'],          // MVNO명
+  ['method', '방식'],                       // 은행/카드
 ];
 
 // groups의 첫 번째 “대표키”를 기준으로 값 하나를 고르고,
