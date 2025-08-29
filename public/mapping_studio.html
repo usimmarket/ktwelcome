@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>KT 폼 좌표 매핑 스튜디오</title>
+<style>
+  body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto; }
+  header { display:flex; gap:12px; align-items:center; padding:10px; background:#0f172a; color:#fff; position:sticky; top:0; z-index:10; }
+  header input, header select, header button { font-size:14px; padding:6px 8px; border-radius:6px; border:1px solid #334155; background:#111827; color:#e5e7eb; }
+  header button.primary { background:#2563eb; border-color:#2563eb; }
+  #wrap { display:grid; grid-template-columns: 1fr 340px; height: calc(100vh - 54px); }
+  #viewer { overflow:auto; background:#111827; display:flex; justify-content:center; }
+  #sidebar { border-left:1px solid #e5e7eb; padding:10px; overflow:auto; }
+  #pdfCanvas { background:#fff; margin:16px; box-shadow:0 10px 30px rgba(0,0,0,.25); }
+  .item { display:flex; gap:6px; align-items:center; padding:6px 0; border-bottom:1px dashed #e5e7eb; }
+  .item input[type="number"] { width:80px; }
+  .badge { font-size:12px; padding:2px 6px; background:#eef2ff; color:#3730a3; border-radius:999px; }
+  .cross { position:absolute; width:12px; height:12px; pointer-events:none; }
+  .cross:before, .cross:after { content:""; position:absolute; background:red; }
+  .cross:before { left:-6px; right:-6px; top:0; bottom:0; width:auto; height:1px; }
+  .cross:after  { top:-6px; bottom:-6px; left:0; right:0; width:1px; height:auto; }
+  .overlay { position:absolute; left:0; top:0; right:0; bottom:0; }
+  .label { position:absolute; background:rgba(255,255,255,.9); border:1px solid #fca5a5; font-size:11px; padding:2px 4px; border-radius:4px; transform:translate(10px,6px); }
+  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .spacer { flex:1; }
+</style>
+</head>
+<body>
+<header>
+  <div class="row">
+    <label>PDF 경로:
+      <input id="pdfUrl" value="/template.pdf" style="width:280px"/>
+    </label>
+    <label>페이지:
+      <input id="page" type="number" value="1" min="1" style="width:64px"/>
+    </label>
+    <label>줌:
+      <input id="zoom" type="number" value="120" min="10" max="400" style="width:72px"/>%
+    </label>
+    <button id="load" class="primary">불러오기</button>
+    <span class="spacer"></span>
+    <button id="exportBtn">매핑 JSON 내보내기</button>
+    <input id="importFile" type="file" accept="application/json" style="display:none"/>
+    <button id="importBtn">가져오기</button>
+  </div>
+</header>
+<div id="wrap">
+  <div id="viewer">
+    <div style="position:relative">
+      <canvas id="pdfCanvas"></canvas>
+      <div class="overlay" id="overlay"></div>
+    </div>
+  </div>
+  <aside id="sidebar">
+    <h3>필드 배치 <span class="badge" id="countBadge"></span></h3>
+    <div class="row" style="margin-bottom:8px;">
+      <label>필드 추가:
+        <select id="fieldSelect">
+          <option value="plan">plan</option>
+<option value="total">total</option>
+<option value="monthly">monthly</option>
+<option value="disc">disc</option>
+<option value="bill">bill</option>
+<option value="join_type">join_type</option>
+<option value="subscriber_name">subscriber_name</option>
+<option value="birth">birth</option>
+<option value="address">address</option>
+<option value="gender">gender</option>
+<option value="subscriber_phone">subscriber_phone</option>
+<option value="wish4">wish4</option>
+<option value="port_number">port_number</option>
+<option value="prev_carrier">prev_carrier</option>
+<option value="mvno_name">mvno_name</option>
+<option value="sim_serial">sim_serial</option>
+<option value="usim_fee">usim_fee</option>
+<option value="pref_langs">pref_langs</option>
+<option value="pay_method">pay_method</option>
+<option value="holder_bank">holder_bank</option>
+<option value="pay_birth_bank">pay_birth_bank</option>
+<option value="bank_name">bank_name</option>
+<option value="bank_account">bank_account</option>
+<option value="holder_card">holder_card</option>
+<option value="pay_birth_card">pay_birth_card</option>
+<option value="card_company">card_company</option>
+<option value="card_number">card_number</option>
+<option value="card_exp_year">card_exp_year</option>
+<option value="card_exp_month">card_exp_month</option>
+        </select>
+      </label>
+      <label>크기:
+        <input id="sizeInput" type="number" value="10" min="6" max="24"/>
+      </label>
+      <button id="addField">추가</button>
+    </div>
+    <div id="list"></div>
+  </aside>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+const $ = sel => document.querySelector(sel);
+const overlay = $("#overlay");
+const canvas = $("#pdfCanvas");
+const ctx = canvas.getContext("2d");
+let pdfDoc = null, scale = 1.2, currentPage = 1;
+let items = []; // {key, x, y, size, page}
+
+function ptToPx(pt){ return pt * (96/72); }
+function pxToPt(px){ return px * (72/96); }
+
+async function render(){
+  if (!pdfDoc) return;
+  const page = await pdfDoc.getPage(currentPage);
+  const viewport = page.getViewport({ scale });
+  canvas.width = viewport.width;
+  canvas.height = viewport.height;
+  const renderContext = { canvasContext: ctx, viewport };
+  await page.render(renderContext).promise;
+  drawOverlay();
+}
+
+function drawOverlay(){
+  overlay.innerHTML = "";
+  items.filter(it => it.page === currentPage).forEach(it => {
+    const xPx = ptToPx(it.x * scale);
+    const yPx = canvas.height - ptToPx(it.y * scale);
+    const cross = document.createElement("div");
+    cross.className = "cross";
+    cross.style.left = xPx + "px";
+    cross.style.top  = yPx + "px";
+    const lab = document.createElement("div");
+    lab.className = "label";
+    lab.textContent = `${it.key} (x:${it.x}, y:${it.y}, size:${it.size})`;
+    cross.appendChild(lab);
+    overlay.appendChild(cross);
+  });
+}
+
+async function loadPdf(){
+  const url = $("#pdfUrl").value.trim();
+  const zoom = parseInt($("#zoom").value, 10) || 120;
+  scale = zoom / 100;
+  const loadingTask = window['pdfjsLib'].getDocument(url);
+  pdfDoc = await loadingTask.promise;
+  currentPage = Math.min(Math.max(parseInt($("#page").value,10)||1,1), pdfDoc.numPages);
+  await render();
+}
+
+overlay.addEventListener("click", (e) => {
+  const r = canvas.getBoundingClientRect();
+  const xPx = e.clientX - r.left;
+  const yPx = e.clientY - r.top;
+  const xPt = Math.round(pxToPt(xPx) / scale);
+  const yPt = Math.round((canvas.height - pxToPt(yPx)) / scale);
+  const key = $("#fieldSelect").value;
+  const size = parseInt($("#sizeInput").value,10) || 10;
+  const item = { key, x: xPt, y: yPt, size, page: currentPage };
+  items.push(item);
+  appendItemRow(item);
+  drawOverlay();
+});
+
+function appendItemRow(item){
+  const row = document.createElement("div");
+  row.className = "item";
+  row.innerHTML = `
+    <span class="badge">${item.key}</span>
+    <label>x:<input type="number" value="${item.x}" style="width:70px"/></label>
+    <label>y:<input type="number" value="${item.y}" style="width:70px"/></label>
+    <label>size:<input type="number" value="${item.size}" style="width:60px"/></label>
+    <label>p:<input type="number" value="${item.page}" style="width:52px"/></label>
+    <button>삭제</button>
+  `;
+  const inputs = row.querySelectorAll("input");
+  const delBtn = row.querySelector("button");
+  inputs[0].oninput = () => { item.x = parseInt(inputs[0].value||"0",10); drawOverlay(); };
+  inputs[1].oninput = () => { item.y = parseInt(inputs[1].value||"0",10); drawOverlay(); };
+  inputs[2].oninput = () => { item.size = parseInt(inputs[2].value||"10",10); drawOverlay(); };
+  inputs[3].oninput = () => { item.page = parseInt(inputs[3].value||"1",10); drawOverlay(); };
+  delBtn.onclick  = () => { items = items.filter(it => it !== item); row.remove(); drawOverlay(); };
+  $("#list").appendChild(row);
+  updateCount();
+}
+
+function updateCount(){
+  $("#countBadge").textContent = items.length;
+}
+
+$("#addField").onclick = () => {
+  const key = $("#fieldSelect").value;
+  const size = parseInt($("#sizeInput").value,10)||10;
+  const item = { key, x: 100, y: 100, size, page: currentPage };
+  items.push(item);
+  appendItemRow(item);
+  drawOverlay();
+};
+
+$("#load").onclick = loadPdf;
+$("#page").onchange = render;
+$("#zoom").onchange = loadPdf;
+
+$("#exportBtn").onclick = () => {
+  const fields = {};
+  for (const it of items) {
+    fields[it.key] = { x: it.x, y: it.y, size: it.size, page: it.page, source: [it.key] };
+  }
+  // add standard constants/dates if user placed them
+  if (fields['apply_date']) fields['apply_date'].format = "date:yyyy.MM.dd";
+  if (fields['intl_block']) fields['intl_block'].const = "적용";
+  if (fields['roaming_block']) fields['roaming_block'].const = "적용";
+
+  const blob = new Blob([JSON.stringify({fields}, null, 2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "KT_mapping_legacy_names.json";
+  a.click();
+};
+
+$("#importBtn").onclick = () => $("#importFile").click();
+$("#importFile").onchange = async (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const text = await f.text();
+  try {
+    const obj = JSON.parse(text);
+    items = []; $("#list").innerHTML = "";
+    if (obj && obj.fields) {
+      for (const [key, cfg] of Object.entries(obj.fields)) {
+        const item = { key, x: cfg.x||0, y: cfg.y||0, size: cfg.size||10, page: cfg.page||1 };
+        items.push(item);
+        appendItemRow(item);
+      }
+    }
+    drawOverlay();
+  } catch (err) { alert("JSON 파싱 실패: " + err.message); }
+};
+
+window.addEventListener("load", loadPdf);
+</script>
+</body>
+</html>
