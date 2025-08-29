@@ -3,76 +3,83 @@ const path = require("path");
 const { PDFDocument, StandardFonts, rgb } = require("pdf-lib");
 
 const ROOT = __dirname;
-
 const mappingPath  = path.join(ROOT, "KT_mapping_legacy_names.json");
 const fontPath     = path.join(ROOT, "malgun.ttf");
 const templatePath = path.join(ROOT, "template.pdf");
 
-function loadOrNull(p) {
-  try { return fs.readFileSync(p); } catch (_) { return null; }
+function loadOrNull(p) { try { return fs.readFileSync(p); } catch { return null; } }
+function mergePayload(event){
+  let body={}; try{ if(event.body) body=JSON.parse(event.body);}catch{}
+  const query=event.queryStringParameters||{};
+  return { ...(body||{}), ...(query||{}) };
 }
 
-function mergePayload(event) {
-  let body = {};
-  try { if (event.body) body = JSON.parse(event.body); } catch (_) {}
-  const queryObj = event.queryStringParameters || {};
-  return { ...(body || {}), ...(queryObj || {}) };
+// Remove problematic symbols (e.g., emoji, dingbats) that many fonts don't cover
+function stripSymbols(str){
+  if (str == null) return "";
+  return String(str)
+    // Emoji & pictographs
+    .replace(/[\u{1F000}-\u{1FAFF}]/gu, "")
+    // Misc symbols, dingbats, arrows
+    .replace(/[\u2190-\u21FF\u2600-\u27BF]/g, "");
 }
 
-exports.handler = async (event, context) => {
+exports.handler = async (event) => {
   try {
     const mode = (event.queryStringParameters && event.queryStringParameters.mode) || "download";
     const payload = mergePayload(event);
 
     const templateBytes = loadOrNull(templatePath);
-    if (!templateBytes) {
-      return { statusCode: 500, body: "template.pdf not found in function bundle" };
+    if (!templateBytes) return { statusCode: 500, body: "template.pdf not found in function bundle" };
+
+    let mapping={}; const mb=loadOrNull(mappingPath);
+    if(mb){ try{ mapping=JSON.parse(mb.toString("utf-8")); }catch{} }
+
+    const pdf = await PDFDocument.load(templateBytes);
+
+    // Try to embed Malgun first (for Hangul/Unicode). Fall back to Helvetica.
+    let primaryFont = null;
+    const malgunBytes = loadOrNull(fontPath);
+    if (malgunBytes) {
+      try { primaryFont = await pdf.embedFont(malgunBytes); } catch {}
+    }
+    const helv = await pdf.embedFont(StandardFonts.Helvetica);
+
+    const pages = pdf.getPages();
+    async function drawSafe(page, text, x, y, size=9){
+      const t1 = stripSymbols(text);
+      try {
+        page.drawText(String(t1 ?? ""), { x, y, size, font: primaryFont || helv, color: rgb(0,0,0) });
+      } catch (e) {
+        // Final fallback: reduce to WinAnsi-safe by removing non-0x00-0xFF
+        const t2 = String(t1 ?? "").replace(/[^\u0000-\u00FF]/g, "?");
+        page.drawText(t2, { x, y, size, font: helv, color: rgb(0,0,0) });
+      }
     }
 
-    let mappingJSON = {};
-    const mappingBytes = loadOrNull(mappingPath);
-    if (mappingBytes) {
-      try { mappingJSON = JSON.parse(mappingBytes.toString("utf-8")); } catch (_) {}
-    }
-
-    const pdfDoc = await PDFDocument.load(templateBytes);
-    const fontBytes = loadOrNull(fontPath);
-    let customFont = null;
-    if (fontBytes) {
-      try { customFont = await pdfDoc.embedFont(fontBytes); } catch (_) {}
-    }
-    const fallbackFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
-
-    function drawText(page, text, x, y, size=9) {
-      const font = customFont || fallbackFont;
-      page.drawText(String(text ?? ""), { x, y, size, font, color: rgb(0,0,0) });
-    }
-
-    const pages = pdfDoc.getPages();
-    if (mappingJSON && mappingJSON.fields) {
-      Object.entries(mappingJSON.fields).forEach(([uiKey, cfg]) => {
-        const pageIndex = Math.max(0, Math.min((cfg.page ?? 1) - 1, pages.length - 1));
+    if (mapping && mapping.fields) {
+      for (const [key, cfg] of Object.entries(mapping.fields)) {
+        const pageIndex = Math.max(0, Math.min((cfg.page || 1) - 1, pages.length - 1));
         const page = pages[pageIndex];
-        const value =
-          payload[cfg.source || uiKey] ??
-          payload[uiKey] ??
-          "";
-        drawText(page, value, cfg.x, cfg.y, cfg.size || 9);
-      });
+        const val = payload[cfg.source || key] ?? payload[key] ?? "";
+        await drawSafe(page, val, cfg.x, cfg.y, cfg.size || 9);
+      }
     } else {
-      const page = pages[0];
-      let y = page.getHeight() - 60;
-      const info = [
-        "⚠ KT_mapping_legacy_names.json not found. Using fallback renderer.",
-        "Fields received (first 20):",
-        ...Object.keys(payload || {}).slice(0, 20).map(k => `• ${k}: ${payload[k]}`)
+      const p = pages[0];
+      let y = p.getHeight() - 60;
+      const lines = [
+        "Mapping file not found. Fallback rendering.",
+        "Fields (first 20):",
+        ...Object.keys(payload || {}).slice(0,20).map(k => `${k}: ${payload[k]}`)
       ];
-      info.forEach(line => { drawText(page, line, 50, y, 10); y -= 14; });
+      for (const line of lines){
+        await drawSafe(p, line, 50, y, 10);
+        y -= 14;
+      }
     }
 
-    const out = await pdfDoc.save();
+    const out = await pdf.save();
     const disposition = mode === "print" ? "inline" : "attachment";
-
     return {
       statusCode: 200,
       headers: {
@@ -83,8 +90,7 @@ exports.handler = async (event, context) => {
       body: Buffer.from(out).toString("base64"),
       isBase64Encoded: true
     };
-
-  } catch (err) {
-    return { statusCode: 500, body: `Function error: ${err && err.message ? err.message : String(err)}` };
+  } catch (e) {
+    return { statusCode: 500, body: "Function error: " + (e?.message||String(e)) };
   }
 };
