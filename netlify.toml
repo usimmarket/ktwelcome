@@ -9,3 +9,13 @@
 [build]
   publish = "public"
   functions = "netlify/functions"
+
+[[redirects]]
+  from = "/generate"
+  to = "/.netlify/functions/generate"
+  status = 200
+
+[[redirects]]
+  from = "/generate/*"
+  to = "/.netlify/functions/generate"
+  status = 200
