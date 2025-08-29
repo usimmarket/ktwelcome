@@ -1,186 +1,259 @@
 {
   "fields": {
-    "total": {
-      "x": 440,
-      "y": 655,
+    "apply_date": {
+      "x": 470,
+      "y": 790,
       "size": 9,
       "page": 1,
-      "source": "total"
-    },
-    "monthly": {
-      "x": 440,
-      "y": 640,
-      "size": 9,
-      "page": 1,
-      "source": "monthly"
-    },
-    "disc": {
-      "x": 440,
-      "y": 625,
-      "size": 9,
-      "page": 1,
-      "source": "disc"
-    },
-    "bill": {
-      "x": 440,
-      "y": 610,
-      "size": 11,
-      "page": 1,
-      "source": "bill"
-    },
-    "subscriber_name": {
-      "x": 140,
-      "y": 560,
-      "size": 11,
-      "page": 1,
-      "source": "subscriber_name"
-    },
-    "birth": {
-      "x": 420,
-      "y": 560,
-      "size": 10,
-      "page": 1,
-      "source": "birth"
-    },
-    "address": {
-      "x": 140,
-      "y": 540,
-      "size": 10,
-      "page": 1,
-      "source": "address"
-    },
-    "gender": {
-      "x": 420,
-      "y": 540,
-      "size": 10,
-      "page": 1,
-      "source": "gender"
-    },
-    "subscriber_phone": {
-      "x": 140,
-      "y": 520,
-      "size": 10,
-      "page": 1,
-      "source": "subscriber_phone"
-    },
-    "wish4": {
-      "x": 420,
-      "y": 520,
-      "size": 10,
-      "page": 1,
-      "source": "wish4"
-    },
-    "port_number": {
-      "x": 140,
-      "y": 500,
-      "size": 10,
-      "page": 1,
-      "source": "port_number"
-    },
-    "prev_carrier": {
-      "x": 420,
-      "y": 500,
-      "size": 10,
-      "page": 1,
-      "source": "prev_carrier"
+      "format": "date:yyyy.MM.dd"
     },
     "mvno_name": {
-      "x": 420,
-      "y": 485,
+      "x": 520,
+      "y": 755,
       "size": 10,
       "page": 1,
-      "source": "mvno_name"
+      "source": [
+        "mvno_name"
+      ]
+    },
+    "total": {
+      "x": 325,
+      "y": 690,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "total"
+      ]
+    },
+    "monthly": {
+      "x": 325,
+      "y": 675,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "monthly"
+      ]
+    },
+    "disc": {
+      "x": 325,
+      "y": 660,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "disc"
+      ]
+    },
+    "bill": {
+      "x": 325,
+      "y": 645,
+      "size": 12,
+      "page": 1,
+      "source": [
+        "bill"
+      ]
+    },
+    "subscriber_name": {
+      "x": 120,
+      "y": 600,
+      "size": 11,
+      "page": 1,
+      "source": [
+        "subscriber_name"
+      ]
+    },
+    "birth": {
+      "x": 360,
+      "y": 600,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "birth"
+      ]
+    },
+    "gender": {
+      "x": 520,
+      "y": 600,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "gender"
+      ]
+    },
+    "address": {
+      "x": 120,
+      "y": 580,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "address"
+      ]
+    },
+    "subscriber_phone": {
+      "x": 120,
+      "y": 560,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "subscriber_phone"
+      ]
+    },
+    "wish4": {
+      "x": 360,
+      "y": 560,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "wish4"
+      ]
+    },
+    "port_number": {
+      "x": 120,
+      "y": 540,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "port_number"
+      ]
+    },
+    "prev_carrier": {
+      "x": 360,
+      "y": 540,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "prev_carrier"
+      ]
     },
     "sim_serial": {
-      "x": 140,
-      "y": 455,
+      "x": 120,
+      "y": 515,
       "size": 10,
       "page": 1,
-      "source": "sim_serial"
+      "source": [
+        "sim_serial"
+      ]
     },
     "usim_fee": {
-      "x": 420,
+      "x": 360,
+      "y": 515,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "usim_fee"
+      ]
+    },
+    "pref_langs": {
+      "x": 120,
+      "y": 490,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "pref_langs"
+      ]
+    },
+    "pay_method": {
+      "x": 360,
+      "y": 490,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "pay_method"
+      ]
+    },
+    "holder_bank": {
+      "x": 120,
+      "y": 470,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "holder_bank"
+      ]
+    },
+    "pay_birth_bank": {
+      "x": 360,
+      "y": 470,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "pay_birth_bank"
+      ]
+    },
+    "bank_name": {
+      "x": 120,
       "y": 455,
       "size": 10,
       "page": 1,
-      "source": "usim_fee"
-    },
-    "pref_langs": {
-      "x": 140,
-      "y": 430,
-      "size": 10,
-      "page": 1,
-      "source": "pref_langs"
-    },
-    "pay_method": {
-      "x": 420,
-      "y": 430,
-      "size": 10,
-      "page": 1,
-      "source": "pay_method"
-    },
-    "holder_bank": {
-      "x": 140,
-      "y": 410,
-      "size": 10,
-      "page": 1,
-      "source": "holder_bank"
-    },
-    "pay_birth_bank": {
-      "x": 420,
-      "y": 410,
-      "size": 10,
-      "page": 1,
-      "source": "pay_birth_bank"
-    },
-    "bank_name": {
-      "x": 140,
-      "y": 395,
-      "size": 10,
-      "page": 1,
-      "source": "bank_name"
+      "source": [
+        "bank_name"
+      ]
     },
     "bank_account": {
-      "x": 420,
-      "y": 395,
+      "x": 360,
+      "y": 455,
       "size": 10,
       "page": 1,
-      "source": "bank_account"
+      "source": [
+        "bank_account"
+      ]
     },
     "holder_card": {
-      "x": 140,
-      "y": 370,
+      "x": 120,
+      "y": 430,
       "size": 10,
       "page": 1,
-      "source": "holder_card"
+      "source": [
+        "holder_card"
+      ]
     },
     "card_company": {
-      "x": 420,
-      "y": 370,
+      "x": 360,
+      "y": 430,
       "size": 10,
       "page": 1,
-      "source": "card_company"
+      "source": [
+        "card_company"
+      ]
     },
     "card_number": {
-      "x": 140,
-      "y": 355,
+      "x": 120,
+      "y": 415,
       "size": 10,
       "page": 1,
-      "source": "card_number"
+      "source": [
+        "card_number"
+      ]
     },
     "card_exp_year": {
-      "x": 420,
-      "y": 355,
+      "x": 360,
+      "y": 415,
       "size": 10,
       "page": 1,
-      "source": "card_exp_year"
+      "source": [
+        "card_exp_year"
+      ]
     },
     "card_exp_month": {
-      "x": 500,
-      "y": 355,
+      "x": 430,
+      "y": 415,
       "size": 10,
       "page": 1,
-      "source": "card_exp_month"
+      "source": [
+        "card_exp_month"
+      ]
+    },
+    "intl_block": {
+      "x": 120,
+      "y": 380,
+      "size": 10,
+      "page": 1,
+      "const": "적용"
+    },
+    "roaming_block": {
+      "x": 360,
+      "y": 380,
+      "size": 10,
+      "page": 1,
+      "const": "적용"
     }
   }
 }
