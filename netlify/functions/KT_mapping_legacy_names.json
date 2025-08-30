@@ -1,0 +1,252 @@
+{
+  "fields": {
+    "apply_date_p1": {
+      "x": 82,
+      "y": 25,
+      "size": 12,
+      "page": 1,
+      "source": [
+        "apply_date"
+      ],
+      "format": "date:yyyy.MM.dd"
+    },
+    "apply_date_p3": {
+      "x": 76,
+      "y": 38,
+      "size": 12,
+      "page": 3,
+      "source": [
+        "apply_date"
+      ],
+      "format": "date:yyyy.MM.dd"
+    },
+    "apply_date_p8": {
+      "x": 79,
+      "y": 49,
+      "size": 10,
+      "page": 8,
+      "source": [
+        "apply_date"
+      ],
+      "format": "date:yyyy.MM.dd"
+    },
+    "birth_p1": {
+      "x": 365,
+      "y": 543,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "birth"
+      ]
+    },
+    "birth_p3": {
+      "x": 514,
+      "y": 450,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "birth"
+      ]
+    },
+    "gender": {
+      "page": 3,
+      "options": {
+        "M": {
+          "x": 422,
+          "y": 594,
+          "size": 10,
+          "page": 3
+        },
+        "F": {
+          "x": 442,
+          "y": 594,
+          "size": 10,
+          "page": 3
+        }
+      }
+    },
+    "address_p1": {
+      "x": 155,
+      "y": 123,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "address"
+      ]
+    },
+    "address_p3": {
+      "x": 146,
+      "y": 563,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "address"
+      ]
+    },
+    "subscriber_phone": {
+      "x": 492,
+      "y": 594,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "subscriber_phone"
+      ]
+    },
+    "wish4": {
+      "x": 282,
+      "y": 494,
+      "size": 11,
+      "page": 1,
+      "source": [
+        "wish4"
+      ]
+    },
+    "port_number": {
+      "x": 172,
+      "y": 287,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "port_number"
+      ]
+    },
+    "prevcarrier": {
+      "page": 1,
+      "options": {
+        "SK": {
+          "x": 430,
+          "y": 287,
+          "size": 10,
+          "page": 1
+        },
+        "LG U+": {
+          "x": 460,
+          "y": 287,
+          "size": 10,
+          "page": 1
+        },
+        "MVNO": {
+          "x": 497,
+          "y": 287,
+          "size": 10,
+          "page": 1
+        }
+      }
+    },
+    "sim_serial": {
+      "x": 244,
+      "y": 416,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "sim_serial"
+      ]
+    },
+    "pref_langs": {
+      "page": 3,
+      "options": {
+        "EN": {
+          "x": 224,
+          "y": 466,
+          "size": 10,
+          "page": 3
+        },
+        "CN": {
+          "x": 256,
+          "y": 466,
+          "size": 10,
+          "page": 3
+        },
+        "VN": {
+          "x": 296,
+          "y": 466,
+          "size": 10,
+          "page": 3
+        },
+        "RU": {
+          "x": 337,
+          "y": 466,
+          "size": 10,
+          "page": 3
+        },
+        "KR": {
+          "x": 378,
+          "y": 466,
+          "size": 10,
+          "page": 3
+        }
+      }
+    },
+    "pay_method": {
+      "page": 3,
+      "options": {
+        "bank": {
+          "x": 143,
+          "y": 441,
+          "size": 10,
+          "page": 3
+        },
+        "card": {
+          "x": 174,
+          "y": 441,
+          "size": 10,
+          "page": 3
+        }
+      }
+    },
+    "bank_name": {
+      "x": 313,
+      "y": 433,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "bank_name"
+      ]
+    },
+    "bank_account": {
+      "x": 350,
+      "y": 433,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "bank_account"
+      ]
+    },
+    "card_company": {
+      "x": 313,
+      "y": 433,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "card_company"
+      ]
+    },
+    "card_number": {
+      "x": 350,
+      "y": 433,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "card_number"
+      ]
+    },
+    "card_exp_year": {
+      "x": 531,
+      "y": 433,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "card_exp_year"
+      ]
+    },
+    "card_exp_month": {
+      "x": 557,
+      "y": 433,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "card_exp_month"
+      ]
+    }
+  }
+}
