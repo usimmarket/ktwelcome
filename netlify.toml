@@ -19,3 +19,8 @@
   from = "/generate/*"
   to = "/.netlify/functions/generate"
   status = 200
+
+  [[redirects]]
+  from = "/mapping-studio.html"
+  to = "/mapping_studio.html"
+  status = 200
