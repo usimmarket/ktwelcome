@@ -1,0 +1,52 @@
+{
+  "fields": {
+    "apply_date_p1": {
+      "x": 66,
+      "y": 26,
+      "size": 12,
+      "page": 1,
+      "source": [
+        "apply_date"
+      ],
+      "format": "date:yyyy.MM.dd"
+    },
+    "apply_date_p3": {
+      "x": 58,
+      "y": 41,
+      "size": 12,
+      "page": 3,
+      "source": [
+        "apply_date"
+      ],
+      "format": "date:yyyy.MM.dd"
+    },
+    "apply_date_p8": {
+      "x": 63,
+      "y": 40,
+      "size": 10,
+      "page": 8,
+      "source": [
+        "apply_date"
+      ],
+      "format": "date:yyyy.MM.dd"
+    },
+    "birth_p1": {
+      "x": 287,
+      "y": 410,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "birth"
+      ]
+    },
+    "birth_p3": {
+      "x": 514,
+      "y": 457,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "birth"
+      ]
+    }
+  }
+}
