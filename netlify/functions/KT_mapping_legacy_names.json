@@ -48,6 +48,15 @@
         "birth"
       ]
     },
+    "birth_p3": {
+      "x": 514,
+      "y": 457,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "birth"
+      ]
+    },
     "gender": {
       "page": 3,
       "options": {
