@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>KT WELCOME 좌표 매핑 스튜디오 (Pro v3 · FIX)</title>
+<style>
+  :root{--bg:#0b1220;--panel:#0a1628;--card:#0e1a2e;--line:#153a59;--accent:#38bdf8;--text:#e5f2ff;--muted:#9fb4cf;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:13px/1.55 ui-sans-serif,system-ui,Segoe UI,Roboto,Apple SD Gothic Neo,Noto Sans KR,Arial,sans-serif}
+  header{position:sticky;top:0;z-index:5;display:flex;gap:12px;align-items:center;padding:12px 14px;background:linear-gradient(180deg,#0c1a30,#0b1220);border-bottom:1px solid #0b2540}
+  h1{font-size:16px;margin:0}
+  .hint{color:#8ec8ff}
+  .wrap{display:grid;grid-template-columns:380px 1fr;min-height:calc(100vh - 52px)}
+  aside{padding:12px;border-right:1px solid #0b2540;background:linear-gradient(180deg,#0b1220,#0a0f1a);overflow:auto}
+  main{position:relative;overflow:auto}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin:0 0 12px 0}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+  label{font-size:12px;color:#cfe9ff}
+  input[type="text"], input[type="number"], select{width:100%;background:#091627;border:1px solid #143252;color:var(--text);padding:6px 8px;border-radius:8px;outline:0}
+  input[type="number"]{width:84px}
+  input[type="file"]{display:none}
+  button{background:#0f2742;border:1px solid #21466e;color:#e6f6ff;border-radius:10px;padding:8px 10px;cursor:pointer;font-size:12px}
+  button.primary{background:#0ea5e9;border-color:#36bffa;color:#01131e}
+  .pill{display:inline-flex;gap:6px;align-items:center;border:1px dashed #2a517b;background:#091a2d;color:#d7eeff;padding:4px 6px;border-radius:999px;font-size:11px;margin:3px 3px 0 0}
+  .pill .del{cursor:pointer;color:#9ad8ff}
+  .list{max-height:220px;overflow:auto}
+  .tabs{display:flex;gap:6px;margin:6px 0 10px}
+  .tab{padding:6px 8px;border-radius:8px;border:1px solid #234667;background:#0a1628;color:#cfe9ff;cursor:pointer}
+  .tab.active{background:#0ea5e9;color:#00111c;border-color:#37c2ff}
+  .toolbar{position:sticky;top:52px;z-index:4;display:flex;gap:10px;align-items:center;padding:8px 12px;background:#07101c;border-bottom:1px solid #0b2540}
+  .stage{position:relative;padding:12px}
+  canvas{display:block;max-width:100%;background:#fff;box-shadow:0 0 0 1px #0b2540}
+  .cross{position:absolute;pointer-events:none;border-left:1px solid #ef4444;border-top:1px solid #ef4444;width:22px;height:22px;transform:translate(-11px,-11px)}
+  .pin{position:absolute;background:#004e78;color:#e6f6ff;border:1px solid #5cc8ff;border-radius:8px;padding:2px 6px;font-size:11px;transform:translate(-50%,-50%);white-space:nowrap}
+  .pin .k{color:#9ae6ff}
+  .muted{font-size:11px;color:var(--muted)}
+  .sectionTitle{font-weight:700;margin-bottom:6px}
+  .legend{display:flex;gap:8px;flex-wrap:wrap}
+  textarea{width:100%;min-height:90px;background:#091627;border:1px solid #143252;color:#e5f2ff;border-radius:8px;padding:8px}
+</style>
+</head>
+<body>
+<header>
+  <h1>KT WELCOME 좌표 매핑 스튜디오 (Pro v3 · FIX)</h1>
+  <div class="hint">1pt = 1px · 다중 페이지 · index.html 자동 스키마 · PDF/이미지 배경</div>
+</header>
+
+<div class="wrap">
+  <aside>
+    <div class="card">
+      <div class="sectionTitle">배경 불러오기</div>
+      <div class="tabs">
+        <div class="tab active" data-mode="pdf">PDF</div>
+        <div class="tab" data-mode="image">이미지</div>
+      </div>
+      <div id="pdfBox">
+        <div class="row">
+          <input id="pdfUrl" type="text" placeholder="/template.pdf" value="/template.pdf">
+          <button id="btnLoadPdf" class="primary">PDF 불러오기</button>
+        </div>
+        <div class="muted">PDF는 <b>scale=1</b> (1pt=1px)로 렌더링됩니다.</div>
+      </div>
+      <div id="imageBox" style="display:none">
+        <div class="row">
+          <button id="btnPickImage">내 PC에서 이미지 선택</button>
+          <input id="imageFile" type="file" accept="image/*">
+        </div>
+        <div class="muted">PNG/JPG 업로드 시 그 해상도 그대로 표시됩니다.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sectionTitle">필드 스키마</div>
+      <div class="row">
+        <button id="btnPickHtml">index.html 업로드 → 자동 추출</button>
+        <input id="htmlFile" type="file" accept=".html,.htm">
+      </div>
+      <div class="muted">폼의 <code>name</code>/<code>data-key</code>/<code>id</code>를 추출합니다.</div>
+      <div class="row" style="margin-top:8px">
+        <label>직접 추가</label><input id="manualKey" type="text" placeholder="예: birth"><button id="btnAddKey">추가</button>
+      </div>
+      <div id="keyStats" class="muted" style="margin-top:6px">필드 0개</div>
+      <div id="keyList" class="list"></div>
+    </div>
+
+    <div class="card">
+      <div class="sectionTitle">좌표 설정</div>
+      <div class="row">
+        <label>선택된 key</label><input id="selKey" type="text" readonly placeholder="키 목록에서 선택">
+        <label>size</label><input id="txtSize" type="number" value="10">
+        <label>page</label><input id="txtPage" type="number" value="1">
+      </div>
+      <div class="row">
+        <button id="btnArm" class="primary">캔버스 클릭으로 좌표 찍기</button>
+        <button id="btnPreview">미리보기 핀</button>
+      </div>
+      <div class="muted">같은 key를 여러 페이지/여러 번 찍을 수 있습니다.</div>
+    </div>
+
+    <div class="card">
+      <div class="sectionTitle">체크박스 (V표시)</div>
+      <div class="grid">
+        <div><label>join_type:new</label><input data-opt="join_type:new" class="optX" type="number"><input data-opt="join_type:new" class="optY" type="number"></div>
+        <div><label>join_type:port</label><input data-opt="join_type:port" class="optX" type="number"><input data-opt="join_type:port" class="optY" type="number"></div>
+        <div><label>gender:M</label><input data-opt="gender:M" class="optX" type="number"><input data-opt="gender:M" class="optY" type="number"></div>
+        <div><label>gender:F</label><input data-opt="gender:F" class="optX" type="number"><input data-opt="gender:F" class="optY" type="number"></div>
+        <div><label>prevcarrier:SK</label><input data-opt="prevcarrier:SK" class="optX" type="number"><input data-opt="prevcarrier:SK" class="optY" type="number"></div>
+        <div><label>prevcarrier:LG</label><input data-opt="prevcarrier:LG" class="optX" type="number"><input data-opt="prevcarrier:LG" class="optY" type="number"></div>
+        <div><label>prevcarrier:MVNO</label><input data-opt="prevcarrier:MVNO" class="optX" type="number"><input data-opt="prevcarrier:MVNO" class="optY" type="number"></div>
+        <div><label>prefsms:KR</label><input data-opt="prefsms:KR" class="optX" type="number"><input data-opt="prefsms:KR" class="optY" type="number"></div>
+        <div><label>prefsms:EN</label><input data-opt="prefsms:EN" class="optX" type="number"><input data-opt="prefsms:EN" class="optY" type="number"></div>
+        <div><label>prefsms:CN</label><input data-opt="prefsms:CN" class="optX" type="number"><input data-opt="prefsms:CN" class="optY" type="number"></div>
+        <div><label>prefsms:VN</label><input data-opt="prefsms:VN" class="optX" type="number"><input data-opt="prefsms:VN" class="optY" type="number"></div>
+        <div><label>prefsms:RU</label><input data-opt="prefsms:RU" class="optX" type="number"><input data-opt="prefsms:RU" class="optY" type="number"></div>
+        <div><label>method:bank</label><input data-opt="method:bank" class="optX" type="number"><input data-opt="method:bank" class="optY" type="number"></div>
+        <div><label>method:card</label><input data-opt="method:card" class="optX" type="number"><input data-opt="method:card" class="optY" type="number"></div>
+      </div>
+      <div class="row" style="margin-top:8px"><label>size</label><input id="optSize" type="number" value="11"><label>page</label><input id="optPage" type="number" value="1"><button id="previewOpt">체크 미리보기</button></div>
+    </div>
+
+    <div class="card">
+      <div class="sectionTitle">고정값 (예: 신청일/부가서비스)</div>
+      <div class="grid">
+        <div><label>apply_date</label><input data-fix="apply_date" class="fixX" type="number"><input data-fix="apply_date" class="fixY" type="number"></div>
+        <div><label>svc_intl (국제전화차단)</label><input data-fix="svc_intl" class="fixX" type="number"><input data-fix="svc_intl" class="fixY" type="number"></div>
+        <div><label>svc_roam (로밍차단)</label><input data-fix="svc_roam" class="fixX" type="number"><input data-fix="svc_roam" class="fixY" type="number"></div>
+      </div>
+      <div class="row" style="margin-top:8px"><label>size</label><input id="fixSize" type="number" value="10"><label>page</label><input id="fixPage" type="number" value="1"><button id="previewFix">고정값 미리보기</button></div>
+    </div>
+
+    <div class="card">
+      <div class="sectionTitle">핀 목록</div>
+      <div id="pinList" class="list"></div>
+      <div class="row" style="margin-top:8px">
+        <button id="btnExport" class="primary">매핑 JSON 내보내기</button>
+        <button id="btnImport">가져오기</button>
+        <input id="importFile" type="file" accept=".json">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sectionTitle">프리뷰용 데이터(JSON)</div>
+      <textarea id="dataJson" placeholder='{"birth":"880214","join_type":"new","gender":"M","prefsms":"KR","method":"bank"}'></textarea>
+      <div class="row"><button id="btnRenderData">데이터로 화면에 찍어보기</button></div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="toolbar">
+      <button id="prev">◀ 이전</button>
+      <div id="pageInfo">Page 1 / 1</div>
+      <button id="next">다음 ▶</button>
+      <div style="flex:1"></div>
+      <div>좌표: <span id="cursor">- , -</span></div>
+    </div>
+    <div id="stage" class="stage">
+      <canvas id="canvas" width="595" height="842"></canvas>
+      <div id="cross" class="cross" style="display:none"></div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.9.179/pdf.min.js"></script>
+<script>
+(function(){
+  // ---------- state ----------
+  let mode='pdf'; // 'pdf' | 'image'
+  let pdfDoc=null, page=1, total=1, scale=1; // scale=1 => 1pt=1px
+  const canvas=document.getElementById('canvas');
+  const ctx=canvas.getContext('2d');
+  const cross=document.getElementById('cross');
+  const cursor=document.getElementById('cursor');
+  const stage=document.getElementById('stage');
+
+  let keys=[]; // field keys from schema
+  let armed=false; // when true, click to place selected key
+  const pins=[]; // {type:'text'|'v'|'fix', key, x,y,size,page, label}
+
+  // ---------- helpers ----------
+  const $=s=>document.querySelector(s);
+  function setPageInfo(){ $("#pageInfo").textContent=`Page ${page} / ${total}`; }
+  function redrawPins(){
+    stage.querySelectorAll('.pin').forEach(n=>n.remove());
+    for(const p of pins){
+      if(p.page!==page) continue;
+      const el=document.createElement('div');
+      el.className='pin';
+      el.style.left=p.x+'px';
+      el.style.top=p.y+'px';
+      el.innerHTML=`<span class="k">${p.type==='v'?'✓':'●'}</span> ${p.label}`;
+      stage.appendChild(el);
+    }
+    const box=$("#pinList"); box.innerHTML='';
+    pins.forEach((p,i)=>{
+      const line=document.createElement('div'); line.className='pill';
+      line.innerHTML=`<span>${p.label}</span> <span class="del" data-i="${i}">삭제</span>`;
+      box.appendChild(line);
+    });
+    box.querySelectorAll('.del').forEach(btn=>btn.addEventListener('click',e=>{
+      const i=+e.target.dataset.i; pins.splice(i,1); redrawPins();
+    }));
+  }
+  function arm(){ armed=true; $("#btnArm").textContent='캔버스 클릭 대기중… (다시 누르면 해제)'; $("#btnArm").classList.add('primary'); }
+  function disarm(){ armed=false; $("#btnArm").textContent='캔버스 클릭으로 좌표 찍기'; $("#btnArm").classList.remove('primary'); }
+
+  // ---------- background loaders ----------
+  async function loadPdf(url){
+    try{
+      const loading = window['pdfjsLib'].getDocument(url);
+      pdfDoc = await loading.promise;
+      total = pdfDoc.numPages;
+      page = Math.min(1,total);
+      scale = 1; // 1pt = 1px
+      await renderPdfPage(page);
+      setPageInfo();
+    }catch(err){
+      alert('PDF 로드 오류: '+(err&&err.message?err.message:err));
+    }
+  }
+  async function renderPdfPage(num){
+    const p = await pdfDoc.getPage(num);
+    const vp = p.getViewport({scale});
+    canvas.width = Math.round(vp.width);
+    canvas.height = Math.round(vp.height);
+    await p.render({canvasContext:ctx, viewport:vp}).promise;
+    redrawPins();
+  }
+  function loadImageFile(file){
+    const img = new Image();
+    img.onload = ()=>{
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      ctx.drawImage(img,0,0);
+      total = 1; page=1; setPageInfo(); redrawPins();
+    };
+    img.src = URL.createObjectURL(file);
+  }
+
+  // ---------- schema extraction ----------
+  function extractKeysFromHtml(htmlText){
+    try{
+      const dom = new DOMParser().parseFromString(htmlText, 'text/html');
+      const found = new Set();
+      dom.querySelectorAll('input,select,textarea').forEach(el=>{
+        const nm = el.getAttribute('name') || el.getAttribute('data-key') || el.id;
+        if(nm){ found.add(nm.trim()); }
+      });
+      return Array.from(found).sort();
+    }catch(e){ alert('HTML 파싱 실패: '+e.message); return []; }
+  }
+  function refreshKeyUI(){
+    $("#keyStats").textContent=`필드 ${keys.length}개`;
+    const box=$("#keyList"); box.innerHTML='';
+    keys.forEach(k=>{
+      const line=document.createElement('div'); line.className='pill';
+      const btn=document.createElement('span'); btn.textContent='좌표지정'; btn.style.cursor='pointer'; btn.style.color='#9ad8ff';
+      btn.addEventListener('click',()=>{ $("#selKey").value=k; arm(); });
+      line.innerHTML=`<span>${k}</span>`;
+      line.appendChild(btn);
+      box.appendChild(line);
+    });
+  }
+
+  // ---------- canvas interactions ----------
+  canvas.addEventListener('mousemove',e=>{
+    const r=canvas.getBoundingClientRect();
+    const x=Math.round(e.clientX-r.left), y=Math.round(e.clientY-r.top);
+    cursor.textContent = `${x}, ${y}`;
+    cross.style.left=x+'px'; cross.style.top=y+'px'; cross.style.display='block';
+  });
+  canvas.addEventListener('mouseleave',()=>cross.style.display='none');
+  canvas.addEventListener('click',e=>{
+    const r=canvas.getBoundingClientRect();
+    const x=Math.round(e.clientX-r.left), y=Math.round(e.clientY-r.top);
+    if(armed){
+      const key = $("#selKey").value || 'field';
+      const size = +$("#txtSize").value || 10;
+      const pg = +$("#txtPage").value || page;
+      pins.push({type:'text', key, x,y,size,page:pg, label:`${key} (x${x}, y${y}, s${size}, p${pg})`});
+      redrawPins(); disarm();
+    }
+  });
+
+  // ---------- option previews ----------
+  $("#previewOpt").addEventListener('click',()=>{
+    const sz=+$("#optSize").value||11, pg=+$("#optPage").value||page;
+    document.querySelectorAll('.optX').forEach(xInput=>{
+      const key=xInput.dataset.opt;
+      const yInput = document.querySelector(`.optY[data-opt="${key}"]`);
+      const x=+xInput.value||0, y=+yInput.value||0;
+      if(x && y){
+        pins.push({type:'v', key, x,y,size:sz, page:pg, label:`✓ ${key} (x${x}, y${y}, s${sz}, p${pg})`});
+      }
+    });
+    redrawPins();
+  });
+  $("#previewFix").addEventListener('click',()=>{
+    const sz=+$("#fixSize").value||10, pg=+$("#fixPage").value||page;
+    document.querySelectorAll('.fixX').forEach(xInput=>{
+      const key=xInput.dataset.fix;
+      const yInput = document.querySelector(`.fixY[data-fix="${key}"]`);
+      const x=+xInput.value||0, y=+yInput.value||0;
+      if(x && y){
+        const display = key==='apply_date' ? new Date().toISOString().slice(0,10).replace(/-/g,'.') : '적용';
+        pins.push({type:'fix', key, x,y,size:sz, page:pg, label:`${key}:${display} (x${x}, y${y}, s${sz}, p${pg})`});
+      }
+    });
+    redrawPins();
+  });
+
+  // ---------- export / import ----------
+  function buildExport(){
+    const fields2 = {};
+    const counts2 = {};
+    // fields (text/fixed)
+    for(const p of pins.filter(p=>p.type!=='v')){
+      const pageKey = `${p.key}_p${p.page}`;
+      counts2[pageKey] = (counts2[pageKey] || 0) + 1;
+      const suf = counts2[pageKey] > 1 ? `_${counts2[pageKey]}` : '';
+      const finalKey = `${pageKey}${suf}`;
+      fields2[finalKey] = { x:p.x, y:p.y, size:p.size, page:p.page, source:[p.key], type:(p.type==='fix'?'fixed':'text') };
+    }
+    // vmap
+    const vmap = {};
+    for(const p of pins.filter(p=>p.type==='v')){
+      vmap[p.key] = { x:p.x, y:p.y, size:p.size, page:p.page };
+    }
+    return { fields: fields2, vmap };
+  }
+  $("#btnExport").addEventListener('click',()=>{
+    const obj = buildExport();
+    const blob = new Blob([JSON.stringify(obj,null,2)], {type:'application/json'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='KT_mapping_legacy_names.json'; a.click();
+  });
+  $("#btnImport").addEventListener('click',()=>$("#importFile").click());
+  $("#importFile").addEventListener('change',async e=>{
+    const f=e.target.files[0]; if(!f) return;
+    const text=await f.text();
+    try{
+      const obj=JSON.parse(text);
+      pins.length=0;
+      if(obj.fields){
+        for(const [k,v] of Object.entries(obj.fields)){
+          const base=(v.source && v.source[0]) || k.replace(/_p\d+(_\d+)?$/,'');
+          pins.push({type:(v.type==='fixed'?'fix':'text'), key:base, x:+v.x, y:+v.y, size:+v.size, page:+(v.page||1), label:`${base} (x${v.x}, y${v.y}, s${v.size}, p${v.page||1})`});
+        }
+      }
+      if(obj.vmap){
+        for(const [k,v] of Object.entries(obj.vmap)){
+          pins.push({type:'v', key:k, x:+v.x, y:+v.y, size:+v.size, page:+(v.page||1), label:`✓ ${k} (x${v.x}, y${v.y}, s${v.size}, p${v.page||1})`});
+        }
+      }
+      redrawPins();
+      alert('가져오기 완료');
+    }catch(err){ alert('JSON 파싱 오류: '+err.message); }
+  });
+
+  // ---------- live data preview ----------
+  $("#btnRenderData").addEventListener('click',()=>{
+    try{
+      const data = JSON.parse($("#dataJson").value || "{}");
+      if(mode==='pdf' && pdfDoc){ renderPdfPage(page).then(()=>drawData(data)); }
+      else drawData(data);
+    }catch(e){ alert('JSON 오류: '+e.message); }
+  });
+  function drawData(data){
+    ctx.save(); ctx.fillStyle='#111';
+    pins.forEach(p=>{
+      if(p.page!==page) return;
+      const val = (p.type==='v') ? '✓' :
+                  (p.type==='fix') ? (p.key==='apply_date' ? new Date().toISOString().slice(0,10).replace(/-/g,'.') : '적용') :
+                  (data[p.key] ?? '');
+      if(!val) return;
+      ctx.font = `${p.size || 10}px MalgunGothic, Malgun Gothic, AppleGothic, Arial`;
+      ctx.fillText(val, p.x, p.y);
+    });
+    ctx.restore();
+  }
+
+  // ---------- UI wiring ----------
+  document.querySelector(".tab[data-mode='pdf']").addEventListener('click',()=>{
+    mode='pdf';
+    document.querySelector(".tab[data-mode='pdf']").classList.add('active');
+    document.querySelector(".tab[data-mode='image']").classList.remove('active');
+    $("#pdfBox").style.display='block'; $("#imageBox").style.display='none';
+  });
+  document.querySelector(".tab[data-mode='image']").addEventListener('click',()=>{
+    mode='image';
+    document.querySelector(".tab[data-mode='image']").classList.add('active');
+    document.querySelector(".tab[data-mode='pdf']").classList.remove('active');
+    $("#pdfBox").style.display='none'; $("#imageBox").style.display='block';
+  });
+
+  $("#btnLoadPdf").addEventListener('click',()=>loadPdf($("#pdfUrl").value || '/template.pdf'));
+  $("#btnPickImage").addEventListener('click',()=>$("#imageFile").click());
+  $("#imageFile").addEventListener('change',e=>{ const f=e.target.files[0]; if(f) loadImageFile(f); });
+
+  $("#btnPickHtml").addEventListener('click',()=>$("#htmlFile").click());
+  $("#htmlFile").addEventListener('change',async e=>{
+    const f=e.target.files[0]; if(!f) return;
+    const text=await f.text();
+    keys = extractKeysFromHtml(text);
+    refreshKeyUI();
+    alert('필드 추출 완료: '+keys.length+'개');
+  });
+  $("#btnAddKey").addEventListener('click',()=>{
+    const k=$("#manualKey").value.trim(); if(!k) return;
+    keys.push(k); keys=[...new Set(keys)].sort();
+    refreshKeyUI(); $("#manualKey").value='';
+  });
+
+  $("#btnArm").addEventListener('click',()=>{ armed ? disarm() : arm(); });
+  $("#btnPreview").addEventListener('click',()=>{
+    const key=$("#selKey").value || 'field', size=+$("#txtSize").value||10, pg=+$("#txtPage").value||page;
+    pins.push({type:'text', key, size, page:pg, x:Math.round(canvas.width/2), y:Math.round(canvas.height/2), label:`${key} (x?, y?, s${size}, p${pg})`});
+    redrawPins();
+  });
+
+  $("#prev").addEventListener('click',()=>{ if(mode==='pdf'){ if(page>1){ page--; renderPdfPage(page).then(redrawPins); setPageInfo(); } } });
+  $("#next").addEventListener('click',()=>{ if(mode==='pdf'){ if(page<total){ page++; renderPdfPage(page).then(redrawPins); setPageInfo(); } } });
+
+  // init
+  // 기본 PDF 경로 시도 (서버에 template.pdf 없으면 사용자 입력으로 다시 로드)
+  try{ loadPdf('/template.pdf'); }catch(e){/* ignore */}
+})();</script>
+</body>
+</html>
