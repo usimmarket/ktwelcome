@@ -1,0 +1,524 @@
+{
+  "fields": {
+    "address_p1": {
+      "x": 219,
+      "y": 984,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "address"
+      ],
+      "type": "text"
+    },
+    "address_p3": {
+      "x": 206,
+      "y": 394,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "address"
+      ],
+      "type": "text"
+    },
+    "bank_account_p3": {
+      "x": 480,
+      "y": 567,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "bank_account"
+      ],
+      "type": "text"
+    },
+    "bank_name_p3": {
+      "x": 436,
+      "y": 567,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "bank_name"
+      ],
+      "type": "text"
+    },
+    "bill_p1": {
+      "x": 706,
+      "y": 212,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "bill"
+      ],
+      "type": "text"
+    },
+    "bill_p1_2": {
+      "x": 629,
+      "y": 331,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "bill"
+      ],
+      "type": "text"
+    },
+    "bill_p1_3": {
+      "x": 717,
+      "y": 331,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "bill"
+      ],
+      "type": "text"
+    },
+    "birth_p1": {
+      "x": 490,
+      "y": 420,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "birth"
+      ],
+      "type": "text"
+    },
+    "birth_p3": {
+      "x": 401,
+      "y": 355,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "birth"
+      ],
+      "type": "text"
+    },
+    "birth_p3_2": {
+      "x": 698,
+      "y": 548,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "birth"
+      ],
+      "type": "text"
+    },
+    "card_company_p3": {
+      "x": 437,
+      "y": 568,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "card_company"
+      ],
+      "type": "text"
+    },
+    "card_exp_month_p3": {
+      "x": 746,
+      "y": 568,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "card_exp_month"
+      ],
+      "type": "text"
+    },
+    "card_exp_year_p3": {
+      "x": 715,
+      "y": 568,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "card_exp_year"
+      ],
+      "type": "text"
+    },
+    "card_number_p3": {
+      "x": 480,
+      "y": 568,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "card_number"
+      ],
+      "type": "text"
+    },
+    "disc_p1": {
+      "x": 706,
+      "y": 200,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "disc"
+      ],
+      "type": "text"
+    },
+    "holder_bank_p3": {
+      "x": 373,
+      "y": 547,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "holder_bank"
+      ],
+      "type": "text"
+    },
+    "holder_card_p3": {
+      "x": 373,
+      "y": 547,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "holder_card"
+      ],
+      "type": "text"
+    },
+    "monthly_p1": {
+      "x": 618,
+      "y": 183,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "monthly"
+      ],
+      "type": "text"
+    },
+    "mvno_name_p1": {
+      "x": 710,
+      "y": 764,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "mvno_name"
+      ],
+      "type": "text"
+    },
+    "plan_p1": {
+      "x": 609,
+      "y": 169,
+      "size": 11,
+      "page": 1,
+      "source": [
+        "plan"
+      ],
+      "type": "text"
+    },
+    "port_number_p1": {
+      "x": 238,
+      "y": 765,
+      "size": 12,
+      "page": 1,
+      "source": [
+        "port_number"
+      ],
+      "type": "text"
+    },
+    "sim_serial_p1": {
+      "x": 331,
+      "y": 593,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "sim_serial"
+      ],
+      "type": "text"
+    },
+    "subscriber_name_p1": {
+      "x": 537,
+      "y": 373,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "subscriber_name"
+      ],
+      "type": "text"
+    },
+    "subscriber_name_p1_2": {
+      "x": 266,
+      "y": 421,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "subscriber_name"
+      ],
+      "type": "text"
+    },
+    "subscriber_name_p1_3": {
+      "x": 560,
+      "y": 1002,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "subscriber_name"
+      ],
+      "type": "text"
+    },
+    "subscriber_name_p1_4": {
+      "x": 489,
+      "y": 1114,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "subscriber_name"
+      ],
+      "type": "text"
+    },
+    "subscriber_name_p2": {
+      "x": 499,
+      "y": 1100,
+      "size": 10,
+      "page": 2,
+      "source": [
+        "subscriber_name"
+      ],
+      "type": "text"
+    },
+    "subscriber_name_p3": {
+      "x": 532,
+      "y": 317,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "subscriber_name"
+      ],
+      "type": "text"
+    },
+    "subscriber_name_p3_2": {
+      "x": 161,
+      "y": 376,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "subscriber_name"
+      ],
+      "type": "text"
+    },
+    "subscriber_name_p3_3": {
+      "x": 487,
+      "y": 647,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "subscriber_name"
+      ],
+      "type": "text"
+    },
+    "subscriber_name_p3_4": {
+      "x": 519,
+      "y": 989,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "subscriber_name"
+      ],
+      "type": "text"
+    },
+    "subscriber_name_p3_5": {
+      "x": 501,
+      "y": 1104,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "subscriber_name"
+      ],
+      "type": "text"
+    },
+    "subscriber_name_p8": {
+      "x": 489,
+      "y": 1098,
+      "size": 10,
+      "page": 8,
+      "source": [
+        "subscriber_name"
+      ],
+      "type": "text"
+    },
+    "subscriber_phone_p3": {
+      "x": 663,
+      "y": 354,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "subscriber_phone"
+      ],
+      "type": "text"
+    },
+    "total_p1": {
+      "x": 205,
+      "y": 196,
+      "size": 12,
+      "page": 1,
+      "source": [
+        "total"
+      ],
+      "type": "text"
+    },
+    "wish4_p1": {
+      "x": 400,
+      "y": 491,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "wish4"
+      ],
+      "type": "text"
+    },
+    "svc_intl_p1": {
+      "x": 255,
+      "y": 698,
+      "size": 12,
+      "page": 1,
+      "source": [
+        "svc_intl"
+      ],
+      "type": "fixed"
+    },
+    "svc_roam_p1": {
+      "x": 370,
+      "y": 698,
+      "size": 12,
+      "page": 1,
+      "source": [
+        "svc_roam"
+      ],
+      "type": "fixed"
+    },
+    "apply_date_p1": {
+      "x": 122,
+      "y": 1114,
+      "size": 12,
+      "page": 1,
+      "source": [
+        "apply_date"
+      ],
+      "type": "fixed"
+    },
+    "apply_date_p3": {
+      "x": 108,
+      "y": 1087,
+      "size": 12,
+      "page": 3,
+      "source": [
+        "apply_date"
+      ],
+      "type": "fixed"
+    },
+    "apply_date_p8": {
+      "x": 121,
+      "y": 1089,
+      "size": 12,
+      "page": 8,
+      "source": [
+        "apply_date"
+      ],
+      "type": "fixed"
+    }
+  },
+  "vmap": {
+    "join_type:new": {
+      "x": 632,
+      "y": 110,
+      "size": 11,
+      "page": 1
+    },
+    "join_type:port": {
+      "x": 664,
+      "y": 110,
+      "size": 11,
+      "page": 1
+    },
+    "gender:M": {
+      "x": 575,
+      "y": 354,
+      "size": 11,
+      "page": 3
+    },
+    "gender:F": {
+      "x": 599,
+      "y": 354,
+      "size": 11,
+      "page": 1
+    },
+    "prevcarrier:SK": {
+      "x": 582,
+      "y": 766,
+      "size": 11,
+      "page": 1
+    },
+    "prevcarrier:LG": {
+      "x": 616,
+      "y": 766,
+      "size": 11,
+      "page": 1
+    },
+    "prevcarrier:MVNO": {
+      "x": 664,
+      "y": 766,
+      "size": 11,
+      "page": 1
+    },
+    "prefsms:KR": {
+      "x": 507,
+      "y": 527,
+      "size": 11,
+      "page": 3
+    },
+    "prefsms:EN": {
+      "x": 309,
+      "y": 527,
+      "size": 11,
+      "page": 3
+    },
+    "prefsms:CN": {
+      "x": 351,
+      "y": 527,
+      "size": 11,
+      "page": 3
+    },
+    "prefsms:VN": {
+      "x": 397,
+      "y": 527,
+      "size": 11,
+      "page": 3
+    },
+    "prefsms:RU": {
+      "x": 452,
+      "y": 527,
+      "size": 11,
+      "page": 3
+    },
+    "method:bank": {
+      "x": 201,
+      "y": 557,
+      "size": 11,
+      "page": 3
+    },
+    "method:card": {
+      "x": 241,
+      "y": 557,
+      "size": 11,
+      "page": 3
+    }
+  },
+  "meta": {
+    "image_size": {
+      "w": 793,
+      "h": 1122
+    }
+  },
+  "fixed_flags": {
+    "intl_roaming_block": [
+      {
+        "x": 255,
+        "y": 698,
+        "size": 12,
+        "page": 1,
+        "label": "국제전화차단"
+      },
+      {
+        "x": 370,
+        "y": 698,
+        "size": 12,
+        "page": 1,
+        "label": "로밍차단"
+      }
+    ]
+  }
+}
