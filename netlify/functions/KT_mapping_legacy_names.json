@@ -496,5 +496,11 @@
       "size": 11,
       "page": 3
     }
+    "fixed_flags": {
+  "intl_roaming_block": [
+    { "x": 123, "y": 456, "size": 10, "page": 1 },
+    { "x": 321, "y": 654, "size": 10, "page": 1 }
+  ]
+}
   }
 }
