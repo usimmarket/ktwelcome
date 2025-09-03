@@ -1,13 +1,22 @@
 // CommonJS (package.json에 "type" 없음)
-// PDF 생성: pdf-lib + fontkit (한글 포함)
-// 좌표계: mapping-studio 기준(왼쪽-상단 원점), pdf-lib로 변환시 y = pageHeight - y - size
+// pdf-lib + fontkit (한글/✓ 표기 확실)
+// 좌표계: 매핑 JSON은 좌상단 원점(pt), pdf-lib 출력은 하단 원점(pt) → y 변환 필요
 
 const fs = require("fs");
 const path = require("path");
-const { PDFDocument, rgb } = require("pdf-lib");
+const { PDFDocument, rgb, StandardFonts } = require("pdf-lib");
 const fontkit = require("@pdf-lib/fontkit");
 
-// --- 유틸 ---
+// ====== (1) 요금제 풀네임 매핑표 ======
+const PLAN_NAMES = {
+  // 예시 — 실제 사용하는 코드/명칭으로 채워주세요
+  wel5: "5G 웰컴5 (통화200분/25GB+5Mbps)",
+  wel3: "5G 웰컴3 (통화200분/3GB+5Mbps)",
+  wel1: "5G 웰컴1 (통화200분/1GB+3Mbps)",
+  // ...
+};
+
+// ====== (2) 유틸 ======
 const here = (...p) => path.resolve(__dirname, ...p);
 const readBin = (p) => fs.readFileSync(p);
 
@@ -30,14 +39,6 @@ function okPdf(bodyBytes, filename, inline = true) {
   };
 }
 
-function okJson(obj) {
-  return {
-    statusCode: 200,
-    headers: { ...CORS, "Content-Type": "application/json; charset=utf-8" },
-    body: JSON.stringify(obj),
-  };
-}
-
 function fail500(msg) {
   return {
     statusCode: 500,
@@ -46,31 +47,16 @@ function fail500(msg) {
   };
 }
 
-// vmap 키 형태 "group:value"를 비교 (예: "join_type:new")
 function vmapHit(optKey, form) {
+  // optKey 예: "join_type:new"
   const [k, v] = String(optKey).split(":");
   if (!k) return false;
   const val = form?.[k];
   if (val == null) return false;
-  // form 값이 단일 문자열 혹은 배열일 수 있음
-  if (Array.isArray(val)) return val.includes(v);
+  if (Array.isArray(val)) return val.map(String).includes(String(v));
   return String(val) === String(v);
 }
 
-// 텍스트 값 취득: source 배열의 첫 번째 키에서 읽되, 없으면 빈 문자열
-function readFieldText(fieldDef, form) {
-  const src = Array.isArray(fieldDef.source) ? fieldDef.source[0] : fieldDef.source;
-  if (!src) return "";
-  let t = form?.[src];
-  if (t == null) return "";
-  t = String(t);
-  // 요금제 명칭 보존 (예: wel5 → 전체 명칭)
-  // form 쪽이 축약코드면, form.plan_name_full 같은 필드가 있으면 우선 사용
-  if (src === "plan" && form?.plan_name_full) t = String(form.plan_name_full);
-  return t;
-}
-
-// 날짜 자동 (apply_date가 비어있으면 오늘 날짜 YYYY.MM.DD)
 function ensureApplyDate(form) {
   if (!form) return;
   const k = "apply_date";
@@ -81,72 +67,106 @@ function ensureApplyDate(form) {
   }
 }
 
-// --- 메인 핸들러 ---
+// 값 읽기(요금제 코드 → 풀네임 치환 포함)
+function readFieldText(fieldDef, form) {
+  const src = Array.isArray(fieldDef.source) ? fieldDef.source[0] : fieldDef.source;
+  if (!src) return "";
+  let t = form?.[src];
+  if (t == null) return "";
+  t = String(t);
+
+  // 프론트가 plan_name_full을 주는 경우 우선
+  if (form?.plan_name_full && (src === "plan" || src === "plan_code")) return String(form.plan_name_full);
+
+  // 코드일 경우 서버에서 치환
+  if (src === "plan" || src === "plan_code") {
+    t = PLAN_NAMES[t] ?? t;
+  }
+  return t;
+}
+
+// ====== (3) 메인 핸들러 ======
 exports.handler = async (event) => {
   try {
     if (event.httpMethod === "OPTIONS") return { statusCode: 204, headers: CORS, body: "" };
 
-    // 템플릿/폰트/매핑 로드 (Netlify 번들 포함)
+    // 정적 리소스 로드 (toml의 included_files에 반드시 포함)
     const templatePdf = readBin(here("template.pdf"));
     const malgunTtf  = readBin(here("malgun.ttf"));
     const mapping    = JSON.parse(readBin(here("KT_mapping_legacy_names.json"), "utf-8"));
 
-    // 요청 파싱 (GET 테스트용 허용, 실제는 POST 권장)
+    // 요청 파싱
     let form = {};
     let mode = (event.queryStringParameters && event.queryStringParameters.mode) || "print"; // print | save
     if (event.httpMethod === "POST" && event.body) {
       try { form = JSON.parse(event.body); } catch {}
     }
-    // 안전장치: apply_date 자동 채움, 국제전화/로밍 문구 고정 등
     ensureApplyDate(form);
 
-    // PDF 구성
+    // PDF 준비
     const pdf = await PDFDocument.load(templatePdf);
     pdf.registerFontkit(fontkit);
-    const font = await pdf.embedFont(malgunTtf, { subset: true });
 
-    const drawTextAt = (page, x, y, text, size = 10) => {
+    // 폰트: 한글/✓ 표시 확실 + 용량 절감 위해 subset:true
+    const malgun = await pdf.embedFont(malgunTtf, { subset: true });
+    // 숫자/영문만 필요한 곳에 쓰고 싶다면 헬베티카도 준비(선택)
+    const helv = await pdf.embedFont(StandardFonts.Helvetica);
+
+    const drawTextAt = (page, x, y, text, size = 10, useKoreanFont = true) => {
       const h = page.getHeight();
-      const yy = h - y - size; // 상단원점 → pdf-lib 하단원점 변환
-      page.drawText(text, { x, y: yy, size, font, color: rgb(0, 0, 0) });
+      const yy = h - y - size; // 상단원점 → 하단원점
+      page.drawText(text, {
+        x,
+        y: yy,
+        size,
+        font: useKoreanFont ? malgun : helv,
+        color: rgb(0, 0, 0),
+      });
     };
 
-    // 1) 일반 텍스트 필드
+    // ✓ 체크 전용(가독성을 위해 size 최소 11 보장)
+    const drawCheck = (page, x, y, size = 11) => {
+      const s = Math.max(Number(size) || 11, 11);
+      const h = page.getHeight();
+      const yy = h - y - s;
+      page.drawText("✓", { x, y: yy, size: s, font: malgun, color: rgb(0, 0, 0) });
+    };
+
+    // ===== 출력 =====
+    // 1) 텍스트 필드
     if (mapping.fields) {
-      Object.entries(mapping.fields).forEach(([key, def]) => {
-        const p = Number(def.page || def.p || 1);
+      for (const [key, def] of Object.entries(mapping.fields)) {
+        const p = Number(def.page || 1);
         const page = pdf.getPage(p - 1);
         const txt = readFieldText(def, form);
-        if (!txt) return;
-        drawTextAt(page, Number(def.x), Number(def.y), txt, Number(def.size || 10));
-      });
+        if (!txt) continue;
+        drawTextAt(page, Number(def.x), Number(def.y), txt, Number(def.size || 10), true);
+      }
     }
 
-    // 2) 체크박스 vmap (✓ 표시)
+    // 2) 체크박스(✓)
     if (mapping.vmap) {
-      Object.entries(mapping.vmap).forEach(([optKey, def]) => {
-        if (!vmapHit(optKey, form)) return;
-        const p = Number(def.page || def.p || 1);
+      for (const [optKey, def] of Object.entries(mapping.vmap)) {
+        if (!vmapHit(optKey, form)) continue;
+        const p = Number(def.page || 1);
         const page = pdf.getPage(p - 1);
-        drawTextAt(page, Number(def.x), Number(def.y), "✓", Number(def.size || 11));
-      });
+        drawCheck(page, Number(def.x), Number(def.y), Number(def.size || 11));
+      }
     }
 
-    // 3) 고정 라벨 (예: 국제전화차단/로밍차단)
+    // 3) 고정 라벨 (예: 국제전화차단/로밍차단) — 폴백 "적용"은 절대 사용하지 않음
     if (mapping.fixed_flags && mapping.fixed_flags.intl_roaming_block) {
-      mapping.fixed_flags.intl_roaming_block.forEach((def) => {
+      for (const def of mapping.fixed_flags.intl_roaming_block) {
         const label = def.label || "국제전화차단/로밍차단"; // '적용' 금지
-        const p = Number(def.page || def.p || 1);
+        const p = Number(def.page || 1);
         const page = pdf.getPage(p - 1);
-        drawTextAt(page, Number(def.x), Number(def.y), label, Number(def.size || 10));
-      });
+        drawTextAt(page, Number(def.x), Number(def.y), label, Number(def.size || 10), true);
+      }
     }
 
-    const pdfBytes = await pdf.save();
-
-    // mode 처리
-    const isInline = mode !== "save";
-    return okPdf(pdfBytes, isInline ? "preview.pdf" : "output.pdf", isInline);
+    const pdfBytes = await pdf.save({ useObjectStreams: true }); // 용량 최적화
+    const inline = mode !== "save";
+    return okPdf(pdfBytes, inline ? "preview.pdf" : "output.pdf", inline);
   } catch (err) {
     return fail500(err && err.message ? err.message : String(err));
   }
