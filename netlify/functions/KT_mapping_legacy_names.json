@@ -1,0 +1,401 @@
+{
+  "fields": {
+    "address_p1_1": {
+      "x": 121.48,
+      "y": 701.81,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "address"
+      ],
+      "type": "text"
+    },
+    "address_p3_2": {
+      "x": 117.48,
+      "y": 260.81,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "address"
+      ],
+      "type": "text"
+    },
+    "bill_p1_3": {
+      "x": 501.48,
+      "y": 120.81,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "bill"
+      ],
+      "type": "text"
+    },
+    "bill_p1_4": {
+      "x": 443.48,
+      "y": 209.81,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "bill"
+      ],
+      "type": "text"
+    },
+    "bill_p1_5": {
+      "x": 505.48,
+      "y": 209.81,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "bill"
+      ],
+      "type": "text"
+    },
+    "birth_p1_6": {
+      "x": 335.48,
+      "y": 277.81,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "birth"
+      ],
+      "type": "text"
+    },
+    "birth_p3_7": {
+      "x": 276.48,
+      "y": 225.81,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "birth"
+      ],
+      "type": "text"
+    },
+    "birth_p3_8": {
+      "x": 490.48,
+      "y": 371.81,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "birth"
+      ],
+      "type": "text"
+    },
+    "disc_p1_9": {
+      "x": 501.48,
+      "y": 108.81,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "disc"
+      ],
+      "type": "text"
+    },
+    "monthly_p1_10": {
+      "x": 501.48,
+      "y": 98.81,
+      "size": 11,
+      "page": 1,
+      "source": [
+        "monthly"
+      ],
+      "type": "text"
+    },
+    "mvno_name_p1_11": {
+      "x": 491.48,
+      "y": 535.81,
+      "size": 11,
+      "page": 1,
+      "source": [
+        "mvno_name"
+      ],
+      "type": "text"
+    },
+    "plan_p1_12": {
+      "x": 141.48,
+      "y": 348.81,
+      "size": 12,
+      "page": 1,
+      "source": [
+        "plan"
+      ],
+      "type": "text"
+    },
+    "plan_p1_13": {
+      "x": 422.48,
+      "y": 88.81,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "plan"
+      ],
+      "type": "text"
+    },
+    "port_number_p1_14": {
+      "x": 140.48,
+      "y": 535.81,
+      "size": 12,
+      "page": 1,
+      "source": [
+        "port_number"
+      ],
+      "type": "text"
+    },
+    "sim_serial_p1_15": {
+      "x": 201.48,
+      "y": 400.81,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "sim_serial"
+      ],
+      "type": "text"
+    },
+    "subscriber_name_p1_16": {
+      "x": 345.48,
+      "y": 248.81,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "subscriber_name"
+      ],
+      "type": "text"
+    },
+    "subscriber_name_p1_17": {
+      "x": 138.48,
+      "y": 283.81,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "subscriber_name"
+      ],
+      "type": "text"
+    },
+    "subscriber_name_p1_18": {
+      "x": 390.48,
+      "y": 711.81,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "subscriber_name"
+      ],
+      "type": "text"
+    },
+    "subscriber_name_p1_19": {
+      "x": 337.48,
+      "y": 792.81,
+      "size": 10,
+      "page": 1,
+      "source": [
+        "subscriber_name"
+      ],
+      "type": "text"
+    },
+    "subscriber_name_p2_20": {
+      "x": 346.48,
+      "y": 776.81,
+      "size": 10,
+      "page": 2,
+      "source": [
+        "subscriber_name"
+      ],
+      "type": "text"
+    },
+    "subscriber_name_p3_21": {
+      "x": 339.48,
+      "y": 194.81,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "subscriber_name"
+      ],
+      "type": "text"
+    },
+    "subscriber_name_p3_22": {
+      "x": 78.48,
+      "y": 241.81,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "subscriber_name"
+      ],
+      "type": "text"
+    },
+    "subscriber_name_p3_23": {
+      "x": 231.48,
+      "y": 371.81,
+      "size": 11,
+      "page": 3,
+      "source": [
+        "subscriber_name"
+      ],
+      "type": "text"
+    },
+    "subscriber_name_p3_24": {
+      "x": 324.48,
+      "y": 447.81,
+      "size": 11,
+      "page": 3,
+      "source": [
+        "subscriber_name"
+      ],
+      "type": "text"
+    },
+    "subscriber_name_p3_25": {
+      "x": 347.48,
+      "y": 704.81,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "subscriber_name"
+      ],
+      "type": "text"
+    },
+    "subscriber_name_p3_26": {
+      "x": 352.48,
+      "y": 783.81,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "subscriber_name"
+      ],
+      "type": "text"
+    },
+    "subscriber_name_p8_27": {
+      "x": 306.48,
+      "y": 776.81,
+      "size": 10,
+      "page": 8,
+      "source": [
+        "subscriber_name"
+      ],
+      "type": "text"
+    },
+    "subscriber_phone_p3_28": {
+      "x": 461.48,
+      "y": 228.81,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "subscriber_phone"
+      ],
+      "type": "text"
+    },
+    "total_p1_29": {
+      "x": 135.48,
+      "y": 108.81,
+      "size": 11,
+      "page": 1,
+      "source": [
+        "total"
+      ],
+      "type": "text"
+    },
+    "wish4_p1_30": {
+      "x": 258.48,
+      "y": 329.81,
+      "size": 11,
+      "page": 1,
+      "source": [
+        "wish4"
+      ],
+      "type": "text"
+    }
+  },
+  "vmap": {
+    "join_type:new": {
+      "x": 439.48,
+      "y": 42.81,
+      "size": 11,
+      "page": 1
+    },
+    "join_type:port": {
+      "x": 461.48,
+      "y": 42.81,
+      "size": 11,
+      "page": 1
+    },
+    "prev_carrier:SKT": {
+      "x": 399.48,
+      "y": 535.81,
+      "size": 11,
+      "page": 1
+    },
+    "prev_carrier:LG U+": {
+      "x": 425.48,
+      "y": 535.81,
+      "size": 11,
+      "page": 1
+    },
+    "prev_carrier:MVNO": {
+      "x": 464.48,
+      "y": 535.81,
+      "size": 11,
+      "page": 1
+    },
+    "pay_method:bank": {
+      "x": 114.48,
+      "y": 378.81,
+      "size": 11,
+      "page": 3
+    },
+    "pay_method:card": {
+      "x": 149.48,
+      "y": 378.81,
+      "size": 11,
+      "page": 3
+    },
+    "pref_langs:EN": {
+      "x": 194.48,
+      "y": 352.81,
+      "size": 11,
+      "page": 3
+    },
+    "pref_langs:CN": {
+      "x": 226.48,
+      "y": 352.81,
+      "size": 11,
+      "page": 3
+    },
+    "pref_langs:VN": {
+      "x": 261.48,
+      "y": 352.81,
+      "size": 11,
+      "page": 3
+    },
+    "pref_langs:RU": {
+      "x": 300.48,
+      "y": 352.81,
+      "size": 11,
+      "page": 3
+    },
+    "pref_langs:KR": {
+      "x": 345.48,
+      "y": 352.81,
+      "size": 11,
+      "page": 3
+    },
+    "gender:M": {
+      "x": 393.48,
+      "y": 226.81,
+      "size": 11,
+      "page": 3
+    },
+    "gender:F": {
+      "x": 413.48,
+      "y": 226.81,
+      "size": 11,
+      "page": 3
+    }
+  },
+  "fixed_flags": {
+    "intl_roaming_block": [
+      {
+        "label": "국제전화차단/로밍차단",
+        "x": 149.48,
+        "y": 485.81,
+        "size": 12,
+        "page": 1
+      }
+    ]
+  }
+}
