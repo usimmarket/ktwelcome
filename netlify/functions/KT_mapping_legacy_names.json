@@ -336,43 +336,43 @@
       "x": 157,
       "y": 427,
       "size": 11,
-      "page": 1
+      "page": 3
     },
     "pay_method:card": {
       "x": 192,
       "y": 427,
       "size": 11,
-      "page": 1
+      "page": 3
     },
     "pref_langs:EN": {
       "x": 237,
       "y": 401,
       "size": 11,
-      "page": 1
+      "page": 3
     },
     "pref_langs:CN": {
       "x": 269,
       "y": 401,
       "size": 11,
-      "page": 1
+      "page": 3
     },
     "pref_langs:VN": {
       "x": 304,
       "y": 401,
       "size": 11,
-      "page": 1
+      "page": 3
     },
     "pref_langs:RU": {
       "x": 343,
       "y": 401,
       "size": 11,
-      "page": 1
+      "page": 3
     },
     "pref_langs:KR": {
       "x": 388,
       "y": 401,
       "size": 11,
-      "page": 1
+      "page": 3
     },
     "gender:M": {
       "x": 436,
