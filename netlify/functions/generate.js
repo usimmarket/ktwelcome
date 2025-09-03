@@ -103,7 +103,7 @@ exports.handler = async (event) => {
     // PDF 구성
     const pdf = await PDFDocument.load(templatePdf);
     pdf.registerFontkit(fontkit);
-    const font = await pdf.embedFont(malgunTtf, { subset: false });
+    const font = await pdf.embedFont(malgunTtf, { subset: true });
 
     const drawTextAt = (page, x, y, text, size = 10) => {
       const h = page.getHeight();
