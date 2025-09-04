@@ -74,6 +74,23 @@ function vmapHit(optKey, form) {
   return String(val) === String(v);
 }
 
+// ── Payment method normalization (bank/card) ───────────────────────────
+function clearByPrefix(form, prefix) {
+  for (const k of Object.keys(form || {})) {
+    if (k.startsWith(prefix)) form[k] = "";
+  }
+}
+function normalizePaymentMethod(form) {
+  if (!form) return;
+  const method = String(form.method || "").toLowerCase();
+  if (method === "bank") {
+    clearByPrefix(form, "card_");   // 은행 선택 시 card_* 값 전부 무효화
+  } else if (method === "card") {
+    clearByPrefix(form, "bank_");   // 카드 선택 시 bank_* 값 전부 무효화
+  }
+}
+
+
 function ensureApplyDate(form) {
 normalizePaymentMethod(form);  
   
