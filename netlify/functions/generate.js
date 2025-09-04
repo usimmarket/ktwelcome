@@ -183,6 +183,7 @@ exports.handler = async (event) => {
  } catch {}
     }
     ensureApplyDate(form);
+    normalizePaymentMethod(form);
 
     const pdf = await PDFDocument.load(templatePdf);
     pdf.registerFontkit(fontkit);
