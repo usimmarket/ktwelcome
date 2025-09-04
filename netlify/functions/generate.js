@@ -13,6 +13,22 @@ const PLAN_NAMES = {
   wel1: "5G 웰컴1 (통화200분/1GB+3Mbps)"
 };
 
+// ── Payment method normalization (bank/card) ───────────────────────────
+function clearByPrefix(form, prefix) {
+  for (const k of Object.keys(form || {})) {
+    if (k.startsWith(prefix)) form[k] = "";
+  }
+}
+function normalizePaymentMethod(form) {
+  if (!form) return;
+  const method = String(form.method || "").toLowerCase();
+  if (method === "bank") {
+    clearByPrefix(form, "card_");   // 은행 선택 시 card_* 값 전부 무효화
+  } else if (method === "card") {
+    clearByPrefix(form, "bank_");   // 카드 선택 시 bank_* 값 전부 무효화
+  }
+}
+
 const DATE_ALIASES = new Set([
   "apply_date","applyDate","신청일","申請日",
   "ngay_dang_ky","ngày đăng ký","วันที่สมัคร","ថ្ងៃដាក់ពាក្យ",
@@ -59,6 +75,8 @@ function vmapHit(optKey, form) {
 }
 
 function ensureApplyDate(form) {
+normalizePaymentMethod(form);  
+  
   if (!form) return;
   const k = "apply_date";
   if (!form[k] || String(form[k]).trim() === "") {
