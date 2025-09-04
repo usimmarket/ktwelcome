@@ -9,7 +9,8 @@ const fontkit = require("@pdf-lib/fontkit");
 
 const PLAN_NAMES = {
   wel5: "5G 웰컴5 (통화200분/25GB+5Mbps)",
-  wel7: "5G 웰컴7 (통화무제한/무제한+5Mbps)"
+  wel3: "5G 웰컴3 (통화200분/3GB+5Mbps)",
+  wel1: "5G 웰컴1 (통화200분/1GB+3Mbps)"
 };
 
 const DATE_ALIASES = new Set([
