@@ -63,7 +63,7 @@ function ensureApplyDate(form) {
   if (!form[k] || String(form[k]).trim() === "") {
     const d = new Date();
     const z = (n) => String(n).padStart(2, "0");
-    form[k] = `\${d.getFullYear()}.\${z(d.getMonth() + 1)}.\${z(d.getDate())}`;
+    form[k] = [d.getFullYear(), z(d.getMonth() + 1), z(d.getDate())].join(".");
   }
 }
 
