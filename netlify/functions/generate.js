@@ -86,29 +86,52 @@ normalizePaymentMethod(form);
   }
 }
 
+// ▼▼▼ 이 함수로 '통째로' 교체하세요 ▼▼▼
 function readFieldText(fieldDef, form, keyNameFromMap) {
+  // source 키(또는 매핑 키) 결정
   let src = Array.isArray(fieldDef.source) ? fieldDef.source[0] : fieldDef.source;
 
-  if (!src && keyNameFromMap) {
-    const k = String(keyNameFromMap).toLowerCase();
-    if (k.includes("apply_date") || k.includes("신청") || k.includes("date")) src = "apply_date";
+  // 신청일 별칭 처리
+  if (!src && /apply[_-]?date|신청일|申請日|date/i.test(keyNameFromMap || "")) {
+    src = "apply_date";
   }
 
-  if (src && DATE_ALIASES.has(src)) src = "apply_date";
-  if (!src) return "";
+  // ── 은행/카드 출력 게이트 ──────────────────────────────
+  const method = String(form.method || "").toLowerCase();   // "bank" | "card" | ""
+  const keyName = String(src || keyNameFromMap || "");
+  if (/^bank_/.test(keyName) && method && method !== "bank") return ""; // 카드 선택 시 bank_* 차단
+  if (/^card_/.test(keyName) && method && method !== "card") return ""; // 은행 선택 시 card_* 차단
 
-  let t = form?.[src];
-  if (t == null) {
-    if (src === "apply_date") { ensureApplyDate(form); t = form.apply_date || ""; }
-    else return "";
+  // 신청일 자동
+  if (src === "apply_date") {
+    if (!form.apply_date || String(form.apply_date).trim() === "") {
+      const d = new Date();
+      const z = (n) => String(n).padStart(2, "0");
+      form.apply_date = `${d.getFullYear()}.${z(d.getMonth() + 1)}.${z(d.getDate())}`;
+    }
+    return form.apply_date || "";
   }
 
-  t = String(t);
-  if (form?.plan_name_full && (src === "plan" || src === "plan_code")) return String(form.plan_name_full);
-  if (src === "plan" || src === "plan_code") t = PLAN_NAMES[t] ?? t;
+  // 값 읽기
+  let t = src ? form?.[src] : form?.[keyNameFromMap];
+  if (t == null) t = "";
 
-  return t;
+  // 요금제 풀네임 치환(PLAN_FULLNAME이 이미 파일 상단에 있음)
+  if (src === "plan" || src === "plan_code" || keyNameFromMap === "plan") {
+    const code = String(t).trim().toLowerCase();
+    return (typeof PLAN_FULLNAME !== "undefined" && PLAN_FULLNAME[code]) ? PLAN_FULLNAME[code] : String(t);
+  }
+
+  // 카드주명 별칭 처리 (card_holder / card_owner / card_name 중 하나만 사용)
+  if (/(^|_)card_(holder|owner|name)$/.test(keyName)) {
+    const v = (form.card_holder ?? form.card_owner ?? form.card_name ?? "");
+    return v != null ? String(v) : "";
+  }
+
+  return String(t);
 }
+// ▲▲▲ 여기까지 그대로 붙여 넣기 ▲▲▲
+
 
 exports.handler = async (event) => {
   try {
