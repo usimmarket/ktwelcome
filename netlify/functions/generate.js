@@ -12,7 +12,7 @@ const PLAN_NAMES = {
   wel3: "5G 웰컴3 (통화200분/3GB+5Mbps)",
   wel1: "5G 웰컴1 (통화200분/1GB+3Mbps)"
 };
-
+const PLAN_FULLNAME = PLAN_NAMES;
 // ── Payment method normalization (bank/card) ───────────────────────────
 function clearByPrefix(form, prefix) {
   for (const k of Object.keys(form || {})) {
@@ -21,12 +21,26 @@ function clearByPrefix(form, prefix) {
 }
 function normalizePaymentMethod(form) {
   if (!form) return;
-  const method = String(form.method || "").toLowerCase();
-  if (method === "bank") {
-    clearByPrefix(form, "card_");   // 은행 선택 시 card_* 값 전부 무효화
-  } else if (method === "card") {
-    clearByPrefix(form, "bank_");   // 카드 선택 시 bank_* 값 전부 무효화
+  let method = String(form.method || "").toLowerCase();
+
+  // (A) 사용자가 method를 안 보낸 케이스 추론
+  if (!method) {
+    const hasCard = Object.keys(form).some(k => k.startsWith("card_") && String(form[k] || "").trim() !== "");
+    const hasBank = Object.keys(form).some(k => k.startsWith("bank_") && String(form[k] || "").trim() !== "");
+    if (hasCard && !hasBank) method = "card";
+    else if (hasBank && !hasCard) method = "bank";
   }
+
+  // (B) 상호 배타 무효화
+  if (method === "bank") {
+    clearByPrefix(form, "card_");   // 은행 선택 → card_* 전부 무효
+  } else if (method === "card") {
+    clearByPrefix(form, "bank_");   // 카드 선택 → bank_* 전부 무효
+  }
+
+  form.method = method || form.method; // 추론했으면 저장
+}
+
 }
 
 const DATE_ALIASES = new Set([
