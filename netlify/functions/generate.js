@@ -165,55 +165,77 @@ function ensureApplyDate(form) {
   }
 }
 
-// ── 매핑된 텍스트 읽기(은행/카드·신규/번호이동 게이트 포함) ────────────
+// ── 매핑된 텍스트 읽기(은행/카드 게이트 + 별칭 처리 + autopay_* 지원) ─────────
 function readFieldText(fieldDef, form, keyNameFromMap) {
-  // source 결정
+  // mapping.json 내 source 우선
   let src = Array.isArray(fieldDef.source) ? fieldDef.source[0] : fieldDef.source;
+  const keyFromMap = String(keyNameFromMap || "");
 
-  // 신청일 별칭
-  if (!src && /apply[_-]?date|신청일|申請日|date/i.test(keyNameFromMap || "")) {
+  // 0) 신청일 별칭
+  if (!src && /apply[_-]?date|신청일|申請日|date/i.test(keyFromMap)) {
     src = "apply_date";
   }
 
-  // 게이트 공통 준비
-  const method = String(form.method || "").toLowerCase(); // bank | card | ""
-  const joinType = String(form.join_type || form.joinType || "").toLowerCase(); // new | port | ""
-  const keyName = String(src || keyNameFromMap || "");
+  // 1) 결제수단 정규화(반드시 앞에서 한 번 호출되어 있어야 함)
+  //    -> ensureApplyDate(form) 다음에 normalizePaymentMethod(form)이 이미 호출되어 있어야 합니다.
+  const method = String(form.method || "").toLowerCase(); // "bank" | "card" | ""
 
-  // 은행/카드 출력 게이트
-  if (method && method !== "bank" && (BANK_KEYS.includes(keyName) || BANK_KEYS.includes(keyNameFromMap))) return "";
-  if (method && method !== "card" && (CARD_KEYS.includes(keyName) || CARD_KEYS.includes(keyNameFromMap))) return "";
-  if (/^bank_/.test(keyName) && method && method !== "bank") return "";
-  if (/^card_/.test(keyName) && method && method !== "card") return "";
+  // 2) autopay_* 별칭 처리
+  //    - autopay_org    : 은행명 or 카드사
+  //    - autopay_number : 계좌번호 or 카드번호
+  //    - autopay_exp    : (카드일 때만) YY/MM 형태로 표시, 은행이면 공란
+  const nameOrSrc = String(src || keyFromMap);
 
-  // 신규/번호이동 출력 게이트
-  if (isNewOnlyKey(keyName)  && joinType !== "new")  return "";
-  if (isPortOnlyKey(keyName) && joinType !== "port") return "";
+  if (nameOrSrc === "autopay_org") {
+    if (method === "card") return String(form.card_company || "");
+    // 은행/미선택은 은행명 우선 출력
+    return String(form.bank_name || "");
+  }
 
-  // 신청일 자동
-  if (src === "apply_date") {
+  if (nameOrSrc === "autopay_number") {
+    if (method === "card") return String(form.card_number || "");
+    return String(form.bank_account || "");
+  }
+
+  if (nameOrSrc === "autopay_exp") {
+    if (method !== "card") return ""; // 은행이면 표시 안 함
+    const yy = String(form.card_exp_year || "").trim();   // 예: "27"
+    const mm = String(form.card_exp_month || "").trim();  // 예: "05"
+    if (!yy && !mm) return "";
+    const z = (n) => String(n).padStart(2, "0");
+    return `${z(yy)} / ${z(mm)}`;
+  }
+
+  // 3) 은행/카드 출력 게이트 (bank_* / card_* 직접 좌표 찍었을 때는 상호 배타)
+  //    - method 값과 다르면 공란으로 막습니다.
+  if (/^bank_/.test(nameOrSrc) && method && method !== "bank") return "";
+  if (/^card_/.test(nameOrSrc) && method && method !== "card") return "";
+
+  // 4) 신청일 자동 채움
+  if (nameOrSrc === "apply_date") {
     ensureApplyDate(form);
     return form.apply_date || "";
   }
 
-  // 값 읽기
+  // 5) 일반 값 읽기
   let t = src ? form?.[src] : form?.[keyNameFromMap];
   if (t == null) t = "";
 
-  // 요금제 풀네임
-  if (src === "plan" || src === "plan_code" || keyNameFromMap === "plan") {
+  // 6) 요금제 코드 → 풀네임
+  if (nameOrSrc === "plan" || nameOrSrc === "plan_code" || keyFromMap === "plan") {
     const code = String(t).trim().toLowerCase();
-    return PLAN_FULLNAME[code] || String(t);
+    return (typeof PLAN_FULLNAME !== "undefined" && PLAN_FULLNAME[code]) ? PLAN_FULLNAME[code] : String(t);
   }
 
-  // 카드주명 별칭 통합
-  if (/(^|_)card_(holder|owner|name)$/.test(keyName)) {
-    const v = form.card_holder ?? form.card_owner ?? form.card_name ?? "";
+  // 7) 카드주명 별칭 통합(card_holder / card_owner / card_name)
+  if (/(^|_)card_(holder|owner|name)$/.test(nameOrSrc)) {
+    const v = (form.card_holder ?? form.card_owner ?? form.card_name ?? "");
     return v != null ? String(v) : "";
   }
 
   return String(t);
 }
+
 
 // ── Netlify 함수 엔트리 ─────────────────────────────────────────────
 exports.handler = async (event) => {
