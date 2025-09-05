@@ -343,16 +343,58 @@
   $("#btnDelete").addEventListener('click',()=>{ if(selectedIndex<0) return; pins.splice(selectedIndex,1); selectedIndex=-1; drawPins(); });
   $("#btnDup").addEventListener('click',()=>{ if(selectedIndex<0) return; const p=pins[selectedIndex]; pins.push({...p}); drawPins(); });
 
+// 리스트/캔버스 양쪽에서 공용으로 쓰는 선택 함수
+function selectPin(i){
+  if (i < 0 || i >= pins.length) return;
+  selectedIndex = i;
+  const p = pins[i];
+
+  // 페이지 전환해서 실제 위치 보이게
+  if (pdfDoc && p.page !== curPage) {
+    curPage = p.page;
+    render(curPage).then(()=> {
+      // 좌표값 입력칸 & 사이즈/페이지 반영
+      $("#selX").value = p.x;
+      $("#selY").value = p.y;
+      $("#page").value = p.page;
+      $("#size").value = p.size;
+      if (p.type === 'text') $("#key").value = p.key || '';
+      drawPins();
+      setInfo();
+    });
+    return;
+  }
+  // 같은 페이지면 바로 반영
+  $("#selX").value = p.x;
+  $("#selY").value = p.y;
+  $("#page").value = p.page;
+  $("#size").value = p.size;
+  if (p.type === 'text') $("#key").value = p.key || '';
+  drawPins();
+}
+  
   // --- 목록 렌더 ---
   function renderLists(){
-    const el=$("#listTextPins"); el.innerHTML='';
-    pins.forEach((p,i)=>{
-      if(p.type!=='text') return;
-      const div=document.createElement('div'); div.className='pill';
-      div.innerHTML=`<span>${p.key}</span> <small>@(${p.x},${p.y}) p${p.page}</small>`;
-      el.appendChild(div);
-    });
-    renderVmapList(); renderFixList();
+    function renderLists(){
+  // 텍스트 핀 목록
+  const el = $("#listTextPins");
+  el.innerHTML = '';
+  pins.forEach((p, i) => {
+    if (p.type !== 'text') return;
+    const div = document.createElement('div');
+    div.className = 'pill';
+    div.dataset.idx = i; // 클릭 시 어떤 핀인지 알기 위해 index 보관
+    div.innerHTML = `<span>${p.key}</span> <small>@(${p.x},${p.y}) p${p.page}</small>`;
+    // ▶ 목록 클릭으로 선택/미세조정 가능
+    div.addEventListener('click', () => selectPin(i));
+    el.appendChild(div);
+  });
+
+  // 체크박스/고정라벨 목록은 기존 그대로
+  renderVmapList();
+  renderFixList();
+}
+
   }
   function renderVmapList(){
     const el=$("#listVmap"); el.innerHTML='';
