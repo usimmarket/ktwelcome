@@ -15,6 +15,24 @@ const PLAN_NAMES = {
 };
 const PLAN_FULLNAME = PLAN_NAMES; // 내부 참조 alias
 
+// 은행/카드 필드의 '정확한 키'를 명시(프리픽스가 없더라도 안전하게 분리)
+const BANK_KEYS = [
+  "bank_name",
+  "bank_account",
+  "bank_holder",      // 있는 경우만 사용됨(없어도 무해)
+  "bank_branch"       // 있는 경우만 사용됨
+];
+
+const CARD_KEYS = [
+  "card_company",
+  "card_number",
+  "card_exp_year",
+  "card_exp_month",
+  "card_holder",
+  "card_owner",       // 별칭
+  "card_name"         // 별칭
+];
+
 // ── 공용 유틸 ───────────────────────────────────────────────────────
 const here = (...p) => path.resolve(__dirname, ...p);
 const readBin = (p) => fs.readFileSync(p);
@@ -88,6 +106,13 @@ function normalizePaymentMethod(form) {
   }
 
   form.method = method || form.method; // 추론 결과 반영
+  
+    // (C) 명시 키 기반 상호배타 무효화 (접두어가 없을 때 대비)
+  if (method === "bank") {
+    for (const k of CARD_KEYS) if (k in form) form[k] = "";
+  } else if (method === "card") {
+    for (const k of BANK_KEYS) if (k in form) form[k] = "";
+  }
 }
 
 // ── 신청일 별칭 세트 ────────────────────────────────────────────────
@@ -128,6 +153,9 @@ function readFieldText(fieldDef, form, keyNameFromMap) {
   // 은행/카드 출력 게이트
   const method = String(form.method || "").toLowerCase(); // "bank" | "card" | ""
   const keyName = String(src || keyNameFromMap || "");
+    // 접두어가 없어도 확실히 차단(BANK_KEYS/CARD_KEYS 기반)
+  if (method && method !== "bank" && (BANK_KEYS.includes(keyName) || BANK_KEYS.includes(keyNameFromMap))) return "";
+  if (method && method !== "card" && (CARD_KEYS.includes(keyName) || CARD_KEYS.includes(keyNameFromMap))) return "";
   if (/^bank_/.test(keyName) && method && method !== "bank") return "";
   if (/^card_/.test(keyName) && method && method !== "card") return "";
 
