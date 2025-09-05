@@ -453,6 +453,75 @@ function redrawPinsOnCanvas(highlight=false){
     drawBox(d.x-4,d.y-4,8,8,"#7ab3ff");
   }
 }
+<script>
+const $ = (s, p=document) => p.querySelector(s);
+
+// PDF: 로컬 파일 로더
+const pdfFileInput = document.getElementById('pdfFileInput');      // id는 현재 파일 input의 id로 맞춰주세요
+const pdfUrlInput  = document.getElementById('pdfUrlInput');       // URL 입력칸
+const pdfLoadBtn   = document.getElementById('pdfLoadBtn');        // "불러오기" 버튼
+
+// index.html 로더
+const idxFileInput = document.getElementById('indexFileInput');    // index.html 파일 input
+const idxLoadBtn   = document.getElementById('indexLoadBtn');      // "로드" 버튼
+
+function toast(msg, ok=false){
+  console[ok?'log':'warn'](msg);
+  // 필요하면 실제 토스트 UI로 교체
+  alert(msg);
+}
+
+// PDF 로컬 파일 -> 이미지/캔버스 로드
+async function loadLocalPdf(file){
+  try {
+    if(!file) return;
+    const buf = await file.arrayBuffer();
+    // 내부 기존 함수로 넘기세요 (예: renderPdfFromArrayBuffer)
+    await renderPdfFromArrayBuffer(buf); 
+    toast('PDF 로컬 파일 로드 완료', true);
+  } catch(e){ toast('PDF 로컬 로드 실패: '+e.message); }
+}
+
+// PDF URL -> fetch -> blob -> arrayBuffer
+async function loadUrlPdf(url){
+  try {
+    if(!url) return toast('URL을 입력하세요');
+    const res = await fetch(url, { mode:'cors' });
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const buf = await res.arrayBuffer();
+    await renderPdfFromArrayBuffer(buf);
+    toast('PDF URL 로드 완료', true);
+  } catch(e){
+    toast('PDF URL 로드 실패 (CORS일 수 있음): '+e.message);
+  }
+}
+
+// index.html -> FileReader -> 텍스트 파싱
+async function loadLocalIndex(file){
+  try {
+    if(!file) return;
+    const text = await file.text();
+    // 내부 기존 파서로 넘기세요 (예: parseFieldNamesFromIndex)
+    const names = parseFieldNamesFromIndex(text);
+    fillFieldList(names);
+    toast('index.html 로드 완료', true);
+  } catch(e){ toast('index.html 로드 실패: '+e.message); }
+}
+
+// 이벤트 바인딩(중복 바인딩 방지)
+if (pdfFileInput && !pdfFileInput._bound){
+  pdfFileInput.addEventListener('change', e => loadLocalPdf(e.target.files?.[0]));
+  pdfFileInput._bound = true;
+}
+if (pdfLoadBtn && !pdfLoadBtn._bound){
+  pdfLoadBtn.addEventListener('click', () => loadUrlPdf(pdfUrlInput?.value?.trim()));
+  pdfLoadBtn._bound = true;
+}
+if (idxLoadBtn && !idxLoadBtn._bound){
+  idxLoadBtn.addEventListener('click', () => loadLocalIndex(idxFileInput?.files?.[0]));
+  idxLoadBtn._bound = true;
+}
+</script>
 
 /* ---------------------- 초기 ---------------------- */
 renderPinList();
