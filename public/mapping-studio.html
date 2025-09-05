@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>PDF 1:1 좌표 매핑 스튜디오 v3.9+</title>
+<style>
+  :root{
+    --bg:#0f1620;--panel:#121b27;--muted:#2a3a50;--ink:#dbe7ff;--ink2:#9fb6da;
+    --accent:#61dafb;--accent2:#57ffa0;--danger:#ff6b6b;--warn:#ffd166;
+  }
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font:14px/1.35 system-ui,Segoe UI,Roboto,Apple SD Gothic Neo,Noto Sans KR,Apple Color Emoji;}
+  *{box-sizing:border-box}
+  .grid{display:grid;grid-template-columns:320px 1fr 360px;gap:12px;height:100%;padding:12px}
+  .card{background:var(--panel);border:1px solid #1d2a3b;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.25);overflow:hidden}
+  .card h3{margin:0;padding:12px 14px;border-bottom:1px solid var(--muted);font-size:14px;letter-spacing:.2px}
+  .pad{padding:10px 12px}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  input,select,button,textarea{background:#0d1420;border:1px solid #263244;color:var(--ink);border-radius:8px;padding:8px 10px}
+  input[type="number"]{width:90px}
+  button{cursor:pointer}
+  .btn{padding:8px 10px;border:1px solid #2a3a50;border-radius:8px;background:#102035}
+  .btn.acc{border-color:#00a3ff;background:#0b2238}
+  .btn.warn{border-color:var(--warn);color:var(--warn)}
+  .btn.danger{border-color:#ff5a5a;color:#ff8a8a}
+  .small{font-size:12px;color:var(--ink2)}
+  .list{height:34vh;overflow:auto;border:1px solid var(--muted);border-radius:8px;padding:6px;background:#0b1320}
+  .chip{display:inline-flex;align-items:center;border:1px solid #27405a;background:#0b1a2b;border-radius:50px;padding:4px 10px;margin:2px;cursor:pointer}
+  .chip.active{background:#10314f;border-color:#2f87ff;color:#bfe1ff}
+  .monos{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  #canvasWrap{position:relative;height:calc(100vh - 120px);overflow:auto;border-top:1px dashed #22344e}
+  canvas{background:#fff;box-shadow:inset 0 0 0 1px #ddd}
+  .pin{position:absolute;pointer-events:none;border:1px dashed #ff4d4d}
+  .pin.sel{border-color:#57ffa0}
+  .rowcols{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  .grid2{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+  .muted{color:#89a3c9}
+  .kbd{padding:2px 6px;border-radius:6px;border:1px solid #2a3a50;background:#0f1a2c;font:11px ui-monospace}
+  .hr{height:1px;background:#1b2940;margin:8px 0}
+</style>
+</head>
+<body>
+<div class="grid">
+  <!-- LEFT: sources & field names -->
+  <div class="card">
+    <h3>소스 / 필드 목록</h3>
+    <div class="pad">
+      <div class="row">
+        <input id="pdfUrl" placeholder="PDF 이미지(URL) 또는 로컬 선택→ '불러오기'" style="flex:1"/>
+        <button class="btn acc" id="loadPdfBtn">불러오기</button>
+      </div>
+      <div class="row small">
+        <span>1pt = 1px · PDF 좌표 그대로</span>
+      </div>
+      <div class="hr"></div>
+      <div class="row small"><b>index.html</b>에서 <code>name=</code> 자동 수집</div>
+      <div class="row">
+        <input type="file" id="indexFile" accept=".html,.htm"/>
+        <button class="btn" id="parseIndexBtn">로드</button>
+      </div>
+      <div id="badges" style="margin-top:6px;max-height:22vh;overflow:auto;"></div>
+      <div class="hr"></div>
+      <div class="row"><button id="importJsonBtn" class="btn">JSON 불러오기</button><button id="exportJsonBtn" class="btn">JSON 저장</button></div>
+      <input type="file" id="jsonFile" accept=".json" style="display:none"/>
+    </div>
+  </div>
+
+  <!-- CENTER: canvas -->
+  <div class="card">
+    <h3 class="row">
+      <button id="prevBtn" class="btn">이전</button>
+      <span id="pageInfo" class="small" style="min-width:120px;text-align:center">Page - / -</span>
+      <button id="nextBtn" class="btn">다음</button>
+      <label style="margin-left:auto" class="small"><input type="checkbox" id="showOnlyPage" checked/> 이 페이지 핀만 표시</label>
+    </h3>
+    <div class="pad">
+      <div id="canvasWrap"><canvas id="cv" width="794" height="1123"></canvas></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: editor -->
+  <div class="card">
+    <h3>편집 / 미세조정</h3>
+    <div class="pad">
+      <div class="row">
+        <span>모드:</span>
+        <label class="chip"><input type="radio" name="mode" value="text" checked/> 텍스트</label>
+        <label class="chip"><input type="radio" name="mode" value="vmap"/> 체크박스</label>
+        <label class="chip"><input type="radio" name="mode" value="fixed"/> 고정라벨</label>
+      </div>
+      <div class="rowcols" style="margin-top:8px">
+        <div><small class="muted">page</small><input id="inpPage" type="number" value="1"/></div>
+        <div><small class="muted">size</small><input id="inpSize" type="number" value="10"/></div>
+        <div style="grid-column:1/3"><small class="muted">key / opt / label</small><input id="inpKey" placeholder="필드명 또는 opt(label)"/></div>
+      </div>
+      <div class="rowcols" style="margin-top:6px">
+        <div><small class="muted">X</small><input id="inpX" type="number" value="0"/></div>
+        <div><small class="muted">Y</small><input id="inpY" type="number" value="0"/></div>
+      </div>
+      <div class="row" style="margin-top:6px">
+        <button class="btn acc" id="applyBtn">적용</button>
+        <button class="btn" id="addBtn">추가</button>
+        <button class="btn" id="dupBtn">복제</button>
+        <button class="btn danger" id="delBtn">삭제</button>
+      </div>
+      <div class="row small" style="margin-top:6px">
+        <span class="kbd">←</span><span class="kbd">→</span><span class="kbd">↑</span><span class="kbd">↓</span> 1pt 이동 · <span class="kbd">Shift</span>+화살표 10pt
+      </div>
+      <div class="hr"></div>
+      <div class="row small">
+        <span>선택 핀 미세조정:</span>
+        <button class="btn" data-nudge="-10,0">◀◀</button>
+        <button class="btn" data-nudge="-1,0">◀</button>
+        <button class="btn" data-nudge="1,0">▶</button>
+        <button class="btn" data-nudge="10,0">▶▶</button>
+        <button class="btn" data-nudge="0,-10">▲▲</button>
+        <button class="btn" data-nudge="0,-1">▲</button>
+        <button class="btn" data-nudge="0,1">▼</button>
+        <button class="btn" data-nudge="0,10">▼▼</button>
+      </div>
+      <div class="hr"></div>
+      <div>
+        <div class="row small">
+          <b>텍스트 핀 목록</b>
+          <span id="countText" style="margin-left:auto"></span>
+        </div>
+        <div id="listText" class="list"></div>
+      </div>
+      <div class="hr"></div>
+      <div>
+        <div class="row small">
+          <b>체크박스(vmap)</b>
+          <span id="countV" style="margin-left:auto"></span>
+        </div>
+        <div id="listV" class="list"></div>
+      </div>
+      <div class="hr"></div>
+      <div>
+        <div class="row small">
+          <b>고정 라벨</b>
+          <span id="countFixed" style="margin-left:auto"></span>
+        </div>
+        <div id="listFixed" class="list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const cv = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+const wrap = document.getElementById('canvasWrap');
+let pages = [];            // [{img,w,h}...]
+let curPage = 1;
+const mapping = { fields:{}, vmap:{}, fixed_flags:{ intl_roaming_block:[] } };
+let sel = { type:null, key:null, idx:null }; // selection
+
+// -------- helpers ----------
+const $ = (q)=>document.querySelector(q);
+const $$ = (q)=>Array.from(document.querySelectorAll(q));
+const num = (v)=> Number(v)||0;
+function redraw(){
+  if (!pages[curPage-1]) return;
+  const p = pages[curPage-1];
+  cv.width = p.w; cv.height = p.h;
+  ctx.clearRect(0,0,cv.width,cv.height);
+  ctx.drawImage(p.img,0,0,p.w,p.h);
+  // draw pins (respect filter)
+  const only = $('#showOnlyPage').checked;
+  // text
+  for (const [k,def] of Object.entries(mapping.fields)){
+    if (only && num(def.page)!=curPage) continue;
+    drawPin(def.x,def.y,def.size, (sel.type==='text' && sel.key===k));
+  }
+  // vmap
+  for (const [k,def] of Object.entries(mapping.vmap)){
+    if (only && num(def.page)!=curPage) continue;
+    drawPin(def.x,def.y,def.size, (sel.type==='vmap' && sel.key===k));
+  }
+  // fixed
+  for (let i=0;i<mapping.fixed_flags.intl_roaming_block.length;i++){
+    const def = mapping.fixed_flags.intl_roaming_block[i];
+    if (only && num(def.page)!=curPage) continue;
+    drawPin(def.x,def.y,def.size, (sel.type==='fixed' && sel.idx===i));
+  }
+  refreshLists();
+}
+function drawPin(x,y,size,selected){
+  const s = Math.max(num(size)||10,10);
+  ctx.save();
+  ctx.strokeStyle = selected? '#57ffa0':'#ff6666';
+  ctx.setLineDash([6,4]);
+  ctx.strokeRect(num(x)-2, num(y)-s, s*2, s*1.4);
+  ctx.restore();
+}
+
+function pageInfo(){ $('#pageInfo').textContent = `Page ${curPage} / ${pages.length||'-'}` }
+function setInputs(def, key='', type='text'){
+  $('#inpX').value = def?.x ?? 0;
+  $('#inpY').value = def?.y ?? 0;
+  $('#inpSize').value = def?.size ?? 10;
+  $('#inpPage').value = def?.page ?? curPage;
+  $('#inpKey').value = key;
+  // select mode radio
+  $$("input[name=mode]").forEach(r=> r.checked = (r.value===type));
+}
+function pickFromCanvas(ev){
+  const rect = cv.getBoundingClientRect();
+  const x = Math.round(ev.clientX-rect.left);
+  const y = Math.round(ev.clientY-rect.top);
+  $('#inpX').value = x; $('#inpY').value = y;
+}
+
+cv.addEventListener('click', pickFromCanvas);
+
+// keyboard nudge
+window.addEventListener('keydown', (e)=>{
+  if (!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)) return;
+  const step = e.shiftKey ? 10:1;
+  const dx = (e.key==='ArrowLeft'?-step:(e.key==='ArrowRight'?step:0));
+  const dy = (e.key==='ArrowUp'?-step:(e.key==='ArrowDown'?step:0));
+  nudge(dx,dy);
+});
+$$('[data-nudge]').forEach(b=> b.addEventListener('click', e=>{
+  const [dx,dy] = e.currentTarget.dataset.nudge.split(',').map(Number);
+  nudge(dx,dy);
+}));
+
+function nudge(dx,dy){
+  const x = num($('#inpX').value)+dx;
+  const y = num($('#inpY').value)+dy;
+  $('#inpX').value = x; $('#inpY').value = y;
+  applyCurrent(false);
+  redraw();
+}
+
+// lists
+function makeItem(label, sub, onClick, selected=false){
+  const div = document.createElement('div');
+  div.style.padding='6px 8px'; div.style.borderBottom='1px solid #1a2a41';
+  div.style.cursor='pointer'; div.style.background = selected? '#143250':'transparent';
+  div.innerHTML = `<div class="row"><b>${label}</b> <span class="small monos" style="margin-left:auto">${sub}</span></div>`;
+  div.onclick = onClick;
+  return div;
+}
+function refreshLists(){
+  const only = $('#showOnlyPage').checked;
+  const lt = $('#listText'); lt.innerHTML='';
+  Object.entries(mapping.fields).forEach(([k,def])=>{
+    if (only && num(def.page)!=curPage) return;
+    lt.appendChild(makeItem(k, `x${def.x},y${def.y},p${def.page},s${def.size}`,
+      ()=>{ sel={type:'text',key:k}; setInputs(def,k,'text'); redraw(); },
+      (sel.type==='text' && sel.key===k)
+    ));
+  });
+  $('#countText').textContent = `${Object.keys(mapping.fields).length}개`;
+
+  const lv = $('#listV'); lv.innerHTML='';
+  Object.entries(mapping.vmap).forEach(([k,def])=>{
+    if (only && num(def.page)!=curPage) return;
+    lv.appendChild(makeItem(k, `x${def.x},y${def.y},p${def.page},s${def.size}`,
+      ()=>{ sel={type:'vmap',key:k}; setInputs(def,k,'vmap'); redraw(); },
+      (sel.type==='vmap' && sel.key===k)
+    ));
+  });
+  $('#countV').textContent = `${Object.keys(mapping.vmap).length}개`;
+
+  const lf = $('#listFixed'); lf.innerHTML='';
+  mapping.fixed_flags.intl_roaming_block.forEach((def,i)=>{
+    if (only && num(def.page)!=curPage) return;
+    const name = def.label || '(label)';
+    lf.appendChild(makeItem(name, `x${def.x},y${def.y},p${def.page},s${def.size}`,
+      ()=>{ sel={type:'fixed',idx:i}; setInputs(def,name,'fixed'); redraw(); },
+      (sel.type==='fixed' && sel.idx===i)
+    ));
+  });
+  $('#countFixed').textContent = `${mapping.fixed_flags.intl_roaming_block.length}개`;
+}
+
+// add/apply/delete/dup
+function applyCurrent(showToast=true){
+  const mode = document.querySelector('input[name=mode]:checked').value;
+  const key = $('#inpKey').value.trim();
+  const def = { x:num($('#inpX').value), y:num($('#inpY').value), size:num($('#inpSize').value), page:num($('#inpPage').value)||curPage };
+  if (mode==='text'){
+    if (!key) return alert('텍스트 key 필요');
+    mapping.fields[key] = def;
+    sel={type:'text',key};
+  }else if (mode==='vmap'){
+    if (!key.includes(':')) return alert('체크박스는 opt형식 "join_type:new" 등으로 입력');
+    mapping.vmap[key] = def;
+    sel={type:'vmap',key};
+  }else{
+    // fixed
+    const label = key || '';
+    if (sel.type==='fixed' && sel.idx!=null){
+      mapping.fixed_flags.intl_roaming_block[sel.idx] = {...def,label};
+    }else{
+      mapping.fixed_flags.intl_roaming_block.push({...def,label});
+      sel={type:'fixed',idx:mapping.fixed_flags.intl_roaming_block.length-1};
+    }
+  }
+  redraw();
+}
+$('#applyBtn').onclick = ()=> applyCurrent(true);
+$('#addBtn').onclick = ()=>{ sel={type:null,key:null,idx:null}; applyCurrent(true); };
+$('#dupBtn').onclick = ()=>{
+  if (!sel.type) return;
+  const def = currentDef();
+  if (!def) return;
+  const nd = {...def, x:def.x+8, y:def.y+8};
+  if (sel.type==='text'){
+    const k = uniqueKey(sel.key||'field_copy', mapping.fields);
+    mapping.fields[k]=nd; sel={type:'text',key:k};
+  }else if (sel.type==='vmap'){
+    const k = uniqueKey(sel.key||'opt_copy', mapping.vmap);
+    mapping.vmap[k]=nd; sel={type:'vmap',key:k};
+  }else{
+    mapping.fixed_flags.intl_roaming_block.push(nd);
+    sel={type:'fixed',idx:mapping.fixed_flags.intl_roaming_block.length-1};
+  }
+  redraw();
+}
+$('#delBtn').onclick = ()=>{
+  if (!sel.type) return;
+  if (sel.type==='text'){ delete mapping.fields[sel.key]; }
+  else if (sel.type==='vmap'){ delete mapping.vmap[sel.key]; }
+  else{ mapping.fixed_flags.intl_roaming_block.splice(sel.idx,1); }
+  sel={type:null,key:null,idx:null};
+  redraw();
+}
+function currentDef(){
+  if (sel.type==='text') return mapping.fields[sel.key];
+  if (sel.type==='vmap') return mapping.vmap[sel.key];
+  if (sel.type==='fixed') return mapping.fixed_flags.intl_roaming_block[sel.idx];
+  return null;
+}
+function uniqueKey(base, obj){
+  let i=1, k=base;
+  while (k in obj){ k = base + '_' + (i++); }
+  return k;
+}
+
+// page nav
+$('#prevBtn').onclick = ()=>{ if (curPage>1){ curPage--; pageInfo(); redraw(); } };
+$('#nextBtn').onclick = ()=>{ if (curPage<pages.length){ curPage++; pageInfo(); redraw(); } };
+$('#showOnlyPage').onchange = redraw;
+
+// load image pages (single image also ok)
+$('#loadPdfBtn').onclick = async ()=>{
+  const url = $('#pdfUrl').value.trim();
+  if (!url){ alert('이미지 URL 또는 로컬 파일을 선택하세요'); return; }
+  pages = [];
+  try{
+    // Try to load as single image
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = ()=>{
+      pages.push({img,w:img.naturalWidth,h:img.naturalHeight});
+      curPage=1; pageInfo(); redraw();
+    };
+    img.onerror = ()=> alert('이미지 로드 실패. URL 확인 또는 로컬 파일 사용');
+    img.src = url;
+  }catch(e){ alert(e.message); }
+};
+
+// index.html parse
+$('#parseIndexBtn').onclick = ()=>{
+  const f = $('#indexFile').files[0];
+  if (!f) return alert('index.html 선택');
+  const fr = new FileReader();
+  fr.onload = ()=>{
+    const html = fr.result;
+    const names = Array.from(html.matchAll(/\bname\s*=\s*"(.*?)"/gi)).map(m=>m[1]);
+    renderBadges([...new Set(names)].sort());
+  };
+  fr.readAsText(f,'utf-8');
+};
+function renderBadges(names){
+  const box = $('#badges'); box.innerHTML='';
+  if (!names.length){ box.innerHTML='<div class="small muted">name= 이 발견되지 않았습니다.</div>'; return; }
+  names.forEach(n=>{
+    const b = document.createElement('span');
+    b.className='chip'; b.textContent = n;
+    b.onclick = ()=>{ $('#inpKey').value = n; };
+    box.appendChild(b);
+  });
+}
+
+// import/export JSON
+$('#importJsonBtn').onclick = ()=> $('#jsonFile').click();
+$('#jsonFile').onchange = (e)=>{
+  const f = e.target.files[0]; if (!f) return;
+  const fr = new FileReader();
+  fr.onload = ()=>{
+    try{
+      const obj = JSON.parse(fr.result);
+      // keep schema
+      mapping.fields = obj.fields||{};
+      mapping.vmap = obj.vmap||{};
+      mapping.fixed_flags = obj.fixed_flags||{intl_roaming_block:[]};
+      redraw();
+      alert('불러오기 완료');
+    }catch(err){ alert('JSON 파싱 실패: ' + err.message); }
+  };
+  fr.readAsText(f,'utf-8');
+};
+$('#exportJsonBtn').onclick = ()=>{
+  const out = JSON.stringify(mapping, null, 2);
+  const blob = new Blob([out], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'KT_mapping_legacy_names.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+
+// init
+(function init(){
+  pageInfo(); redraw();
+  // click in list to select already handled in refreshLists
+})();
+</script>
+</body>
+</html>
