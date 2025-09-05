@@ -178,7 +178,17 @@ function readFieldText(fieldDef, form, keyNameFromMap) {
 
   // 1) 결제수단 정규화(반드시 앞에서 한 번 호출되어 있어야 함)
   //    -> ensureApplyDate(form) 다음에 normalizePaymentMethod(form)이 이미 호출되어 있어야 합니다.
-  const method = String(form.method || "").toLowerCase(); // "bank" | "card" | ""
+  // ── 결제수단 판정(폼 값이 엉켜 있을 때도 안전하게) ─────────────────────
+let method = String(form.method || "").toLowerCase().trim();  // "bank" | "card" | ""
+
+// method가 비어있거나 애매하면 실제 값 존재 여부로 재판정
+if (method !== "bank" && method !== "card") {
+  const hasCard = CARD_KEYS.some(k => String(form[k] ?? "").trim() !== "");
+  const hasBank = BANK_KEYS.some(k => String(form[k] ?? "").trim() !== "");
+  if (hasCard && !hasBank) method = "card";
+  else if (hasBank && !hasCard) method = "bank";
+  else if (hasCard && hasBank) method = "card"; // 충돌 시 '카드' 우선
+}
 
   // 2) autopay_* 별칭 처리
   //    - autopay_org    : 은행명 or 카드사
