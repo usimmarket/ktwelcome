@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>PDF 1:1 좌표 매핑 스튜디오 v3.4</title>
+<style>
+  :root{--bg:#0b1220;--fg:#e7eefc;--mut:#9db0d1;--acc:#5cc8ff;--card:#121a2c;--chip:#1b2438}
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,Segoe UI,Roboto,Apple SD Gothic Neo,Noto Sans KR,sans-serif}
+  *{box-sizing:border-box}
+  .wrap{display:grid;grid-template-columns:320px 1fr 360px;gap:12px;height:100%;padding:12px}
+  .panel{background:var(--card);border:1px solid #22304c;border-radius:12px;padding:12px;overflow:auto}
+  h3{margin:6px 0 10px 0;font-size:16px}
+  input,button,select,textarea{background:#0e1628;border:1px solid #253451;color:var(--fg);border-radius:8px;padding:8px}
+  button{cursor:pointer}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .row > *{flex:1}
+  .btn{background:#1a2946;border-color:#2b4069}
+  .btn:hover{background:#233555}
+  .monos{font-family:ui-monospace,Consolas,monospace}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+  .chip{background:var(--chip);border:1px solid #2a3a59;padding:6px 10px;border-radius:999px;cursor:pointer}
+  .chip:hover{outline:1px solid var(--acc)}
+  canvas{background:#fff;border-radius:8px;box-shadow:0 0 0 1px #203050 inset}
+  .tools{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+  .list{display:flex;flex-direction:column;gap:6px}
+  .item{padding:8px;border-radius:8px;background:#0e1628;border:1px solid #263551;cursor:pointer}
+  .item.sel{outline:2px solid var(--acc)}
+  .tabs{display:flex;gap:6px;margin:6px 0}
+  .tab{padding:6px 10px;border-radius:8px;background:#0e1628;border:1px solid #2a3a59;cursor:pointer}
+  .tab.on{background:#1a2946;border-color:#3a5a8c}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .small{font-size:12px;color:var(--mut)}
+  .badge{display:inline-block;padding:2px 6px;border-radius:6px;background:#0e1628;border:1px solid #2a3a59;color:#a3c7ff;margin-left:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- LEFT: sources & fields -->
+  <section class="panel" id="left">
+    <h3>소스 / 필드 목록 <span class="badge">1pt = 1px</span></h3>
+    <div class="row">
+      <input id="imgUrl" placeholder="PDF 이미지(URL)"/>
+      <button class="btn" id="btnLoadUrl">불러오기</button>
+    </div>
+    <div class="row">
+      <input type="file" id="imgFile" accept="image/*"/>
+      <input type="file" id="htmlFile" accept=".html,.htm"/>
+    </div>
+    <div class="row">
+      <button class="btn" id="btnParseHtml">index.html 에서 name= 자동 수집</button>
+    </div>
+    <div class="chips" id="fieldChips"></div>
+    <hr style="border-color:#22304c;margin:12px 0">
+    <div class="row">
+      <button class="btn" id="btnImport">가져오기(JSON)</button>
+      <button class="btn" id="btnExport">JSON 내보내기</button>
+      <label class="small" style="margin-left:auto"><input type="checkbox" id="chkPageOnly" checked> 이 페이지 핀만 표시</label>
+    </div>
+    <h3>텍스트 핀 목록(전체 페이지) · <span class="small">캔버스는 현재 페이지만 표시</span></h3>
+    <div class="list" id="textList"></div>
+  </section>
+
+  <!-- CENTER: canvas -->
+  <section class="panel" id="center">
+    <div class="row" style="justify-content:space-between">
+      <div class="row" style="flex:0 0 auto;gap:6px">
+        <button class="btn" id="btnPrev">◀ 이전</button>
+        <span>Page <span id="pageNow">1</span> / <span id="pageTotal">1</span></span>
+        <button class="btn" id="btnNext">다음 ▶</button>
+      </div>
+      <div class="row" style="flex:0 0 auto;gap:6px">
+        <span class="small">좌표: <span id="cursorXY" class="monos">- , -</span></span>
+      </div>
+    </div>
+    <canvas id="cv" width="794" height="1123"></canvas>
+  </section>
+
+  <!-- RIGHT: editor -->
+  <section class="panel" id="right">
+    <h3>에디터</h3>
+    <div class="tabs">
+      <button class="tab on" data-mode="text">텍스트</button>
+      <button class="tab" data-mode="check">체크박스</button>
+      <button class="tab" data-mode="fixed">고정라벨</button>
+    </div>
+
+    <div id="editor">
+      <div class="row">
+        <label>page</label><input id="inpPage" class="monos" style="width:70px" value="1">
+        <label>size</label><input id="inpSize" class="monos" style="width:70px" value="10">
+      </div>
+      <div class="row" id="rowKey">
+        <label>key</label><input id="inpKey" class="monos" placeholder="필드명 또는 직접 입력">
+      </div>
+      <div class="row" id="rowOpt" style="display:none">
+        <label>opt</label><input id="inpOpt" class="monos" placeholder="예: join_type:new">
+      </div>
+      <div class="row" id="rowLabel" style="display:none">
+        <label>label</label><input id="inpLabel" class="monos" placeholder="예: 국제전화차단/로밍차단">
+      </div>
+
+      <div class="row">
+        <button class="btn" id="btnPick">캔버스 클릭으로 좌표 찍기</button>
+      </div>
+      <div class="row">
+        <label>X</label><input id="inpX" class="monos" style="width:90px">
+        <label>Y</label><input id="inpY" class="monos" style="width:90px">
+        <button class="btn" id="btnApply">적용</button>
+      </div>
+      <div class="tools">
+        <button class="btn" data-dx="0" data-dy="-1">↑</button>
+        <button class="btn" data-dx="-1" data-dy="0">←</button>
+        <button class="btn" data-dx="1" data-dy="0">→</button>
+        <button class="btn" data-dx="0" data-dy="1">↓</button>
+      </div>
+      <div class="row">
+        <button class="btn" id="btnDel">선택 삭제</button>
+        <button class="btn" id="btnDup">선택 복제</button>
+      </div>
+      <div class="row small">
+        <span>선택 핀은 <b>1pt 이동</b> · 키보드 화살표도 가능(Shift=10pt)</span>
+      </div>
+
+      <h3>체크 / 라벨 목록(현재 페이지)</h3>
+      <div class="list" id="metaList"></div>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+  // ---------- state ----------
+  const cv = document.getElementById('cv');
+  const ctx = cv.getContext('2d');
+  let img = null;
+  let pages = [null]; // single image per page
+  let pageNow = 1;
+  const mapping = { fields:{}, vmap:{}, fixed_flags:{ intl_roaming_block:[] } };
+  let currentMode = 'text'; // 'text' | 'check' | 'fixed'
+  let selected = null; // {type, key, idx?}
+  let pickMode = false;
+  const cursorXY = document.getElementById('cursorXY');
+
+  // ---------- helpers ----------
+  const $ = sel => document.querySelector(sel);
+  const $$ = sel => Array.from(document.querySelectorAll(sel));
+  const num = v => Math.max(0, Number(v)||0);
+  const pageTotal = () => pages.length;
+  const clampPage = p => Math.max(1, Math.min(p, pageTotal()));
+  const getPagePins = () => {
+    const p = pageNow;
+    const res = [];
+    for (const [k, def] of Object.entries(mapping.fields)) if ((def.page||1)===p) res.push({type:'text', key:k, def});
+    for (const [opt, def] of Object.entries(mapping.vmap)) if ((def.page||1)===p) res.push({type:'check', key:opt, def});
+    for (const def of mapping.fixed_flags.intl_roaming_block) if ((def.page||1)===p) res.push({type:'fixed', key: def.label||'label', def});
+    return res;
+  };
+  function draw() {
+    ctx.clearRect(0,0,cv.width,cv.height);
+    if (pages[pageNow-1]) ctx.drawImage(pages[pageNow-1],0,0,cv.width,cv.height);
+    // draw pins
+    const showOnly = $('#chkPageOnly').checked;
+    const drawList = showOnly ? getPagePins() : [
+      ...Object.entries(mapping.fields).map(([k,def])=>({type:'text', key:k, def})),
+      ...Object.entries(mapping.vmap).map(([k,def])=>({type:'check', key:k, def})),
+      ...mapping.fixed_flags.intl_roaming_block.map(def=>({type:'fixed', key:def.label||'label', def}))
+    ];
+    for (const it of drawList) {
+      const d = it.def;
+      const x = Number(d.x), y = Number(d.y), s=Number(d.size||10);
+      ctx.save();
+      ctx.strokeStyle = it.type==='text' ? '#2ad1ff' : it.type==='check' ? '#8bff7a' : '#ffd45c';
+      ctx.fillStyle = ctx.strokeStyle;
+      ctx.lineWidth = 1.5;
+      // crosshair
+      ctx.beginPath();
+      ctx.moveTo(x-8,y); ctx.lineTo(x+8,y);
+      ctx.moveTo(x,y-8); ctx.lineTo(x,y+8);
+      ctx.stroke();
+      // label
+      ctx.globalAlpha=0.15; ctx.fillRect(x-28,y-14,56,20);
+      ctx.globalAlpha=1;
+      ctx.font = '10px ui-monospace,monospace';
+      ctx.fillText(`${it.type}:${it.key}`, x+10, y-10);
+      ctx.restore();
+    }
+    // selection ring
+    if (selected) {
+      const d = selected.def;
+      const x = Number(d.x), y = Number(d.y);
+      ctx.save(); ctx.strokeStyle='#fff'; ctx.lineWidth=2;
+      ctx.strokeRect(x-12,y-12,24,24); ctx.restore();
+    }
+    $('#pageNow').textContent = pageNow;
+    $('#pageTotal').textContent = pageTotal();
+    renderLists();
+  }
+
+  function renderLists() {
+    // text list
+    const L = $('#textList'); L.innerHTML='';
+    const entries = Object.entries(mapping.fields).sort((a,b)=> (a[1].page||1)-(b[1].page||1));
+    for (const [k, def] of entries) {
+      const el = document.createElement('div');
+      el.className = 'item' + (selected && selected.type==='text' && selected.key===k ? ' sel':'');
+      el.textContent = `${k} @(${def.x},${def.y}) p${def.page||1}`;
+      el.onclick = ()=> { selected = {type:'text', key:k, def}; fillEditor(); draw(); };
+      L.appendChild(el);
+    }
+    // meta list (right)
+    const M = $('#metaList'); M.innerHTML='';
+    const meta = [...Object.entries(mapping.vmap).map(([k,def])=>({t:'check',k,def})), ...mapping.fixed_flags.intl_roaming_block.map((def,i)=>({t:'fixed',k:`label#${i}`,def}))].filter(x=>(x.def.page||1)===pageNow);
+    for (const it of meta) {
+      const el = document.createElement('div');
+      el.className='item'+(selected && ((it.t==='check'&&selected.type==='check'&&selected.key===it.k)||(it.t==='fixed'&&selected.type==='fixed'&&selected.def===it.def))?' sel':'');
+      el.textContent = it.t==='check' ? `✓ ${it.k} @(${it.def.x},${it.def.y})` : `라벨 "${it.def.label||''}" @(${it.def.x},${it.def.y})`;
+      el.onclick = ()=>{ selected = {type: it.t, key: it.k, def: it.def}; fillEditor(); draw(); };
+      M.appendChild(el);
+    }
+  }
+
+  function fillEditor() {
+    const mode = currentMode;
+    const d = selected?.def || {};
+    $('#inpX').value = d.x ?? '';
+    $('#inpY').value = d.y ?? '';
+    $('#inpSize').value = d.size ?? (mode==='check'?11:10);
+    $('#inpPage').value = d.page ?? pageNow;
+    if (mode==='text') {
+      $('#rowKey').style.display='flex'; $('#rowOpt').style.display='none'; $('#rowLabel').style.display='none';
+      $('#inpKey').value = selected?.key || '';
+    } else if (mode==='check') {
+      $('#rowKey').style.display='none'; $('#rowOpt').style.display='flex'; $('#rowLabel').style.display='none';
+      $('#inpOpt').value = selected?.key || '';
+    } else {
+      $('#rowKey').style.display='none'; $('#rowOpt').style.display='none'; $('#rowLabel').style.display='flex';
+      $('#inpLabel').value = selected?.def?.label || '';
+    }
+  }
+
+  function applyEditor() {
+    const x=num($('#inpX').value), y=num($('#inpY').value);
+    const size=num($('#inpSize').value)|| (currentMode==='check'?11:10);
+    const page=num($('#inpPage').value)||pageNow;
+    if (currentMode==='text') {
+      const key = ($('#inpKey').value||'').trim();
+      if (!key) return alert('key를 입력하세요.');
+      if (!mapping.fields[key]) mapping.fields[key]={};
+      mapping.fields[key].x=x; mapping.fields[key].y=y; mapping.fields[key].size=size; mapping.fields[key].page=page;
+      selected = {type:'text', key, def:mapping.fields[key]};
+    } else if (currentMode==='check') {
+      const opt = ($('#inpOpt').value||'').trim();
+      if (!opt.includes(':')) return alert('옵션은 "key:value" 형식이어야 합니다.');
+      if (!mapping.vmap[opt]) mapping.vmap[opt]={};
+      mapping.vmap[opt].x=x; mapping.vmap[opt].y=y; mapping.vmap[opt].size=size; mapping.vmap[opt].page=page;
+      selected = {type:'check', key:opt, def:mapping.vmap[opt]};
+    } else {
+      const label = ($('#inpLabel').value||'').trim();
+      const def = selected?.def || {label};
+      def.x=x; def.y=y; def.size=size; def.page=page; def.label=label;
+      if (!selected || selected.type!=='fixed') mapping.fixed_flags.intl_roaming_block.push(def);
+      selected = {type:'fixed', key:label, def};
+    }
+    draw();
+  }
+
+  // ---------- image loading ----------
+  async function loadImageFrom(src) {
+    return new Promise((resolve,reject)=>{
+      const im = new Image();
+      im.crossOrigin = 'anonymous';
+      im.onload = ()=> resolve(im);
+      im.onerror = reject;
+      im.src = src;
+    });
+  }
+  async function setImage(im) {
+    pages = [im]; // single page support
+    pageNow = 1;
+    draw();
+  }
+
+  // ---------- events ----------
+  cv.addEventListener('mousemove', e=>{
+    const r = cv.getBoundingClientRect();
+    const x = Math.round(e.clientX - r.left);
+    const y = Math.round(e.clientY - r.top);
+    cursorXY.textContent = `${x}, ${y}`;
+  });
+  cv.addEventListener('click', e=>{
+    const r = cv.getBoundingClientRect();
+    const x = Math.round(e.clientX - r.left);
+    const y = Math.round(e.clientY - r.top);
+    if (pickMode) {
+      $('#inpX').value=x; $('#inpY').value=y; pickMode=false; $('#btnPick').textContent='캔버스 클릭으로 좌표 찍기';
+      return;
+    }
+    // select nearest pin on this page
+    const pins = getPagePins();
+    let hit=null, best=9999;
+    for (const it of pins) {
+      const dx=x-it.def.x, dy=y-it.def.y, d=dx*dx+dy*dy;
+      if (d<best && d<25*25){best=d;hit=it;}
+    }
+    if (hit){ selected = {type: hit.type, key: hit.key, def: hit.def}; currentMode = hit.type==='text'?'text':hit.type==='check'?'check':'fixed'; syncTabs(); fillEditor(); draw(); }
+  });
+
+  $('#btnPick').onclick=()=>{ pickMode=!pickMode; $('#btnPick').textContent = pickMode?'좌표 찍을 위치를 캔버스에서 클릭':'캔버스 클릭으로 좌표 찍기'; };
+  $('#btnApply').onclick=applyEditor;
+  $('#btnDel').onclick=()=>{
+    if (!selected) return;
+    if (selected.type==='text') delete mapping.fields[selected.key];
+    else if (selected.type==='check') delete mapping.vmap[selected.key];
+    else {
+      const i = mapping.fixed_flags.intl_roaming_block.indexOf(selected.def);
+      if (i>=0) mapping.fixed_flags.intl_ro밍차단 = mapping.fixed_flags.intl_roaming_block.splice(i,1);
+    }
+    selected=null; draw();
+  };
+  $('#btnDup').onclick=()=>{
+    if (!selected) return;
+    const d = JSON.parse(JSON.stringify(selected.def));
+    d.x += 12; d.y += 12;
+    if (selected.type==='text'){
+      let base = selected.key, i=2;
+      while (mapping.fields[`${base}_${i}`]) i++;
+      mapping.fields[`${base}_${i}`]=d; selected={type:'text', key:`${base}_${i}`, def:d};
+    } else if (selected.type==='check'){
+      let base = selected.key, i=2;
+      while (mapping.vmap[`${base}#${i}`]) i++;
+      mapping.vmap[`${base}#${i}`]=d; selected={type:'check', key:`${base}#${i}`, def:d};
+    } else {
+      mapping.fixed_flags.intl_roaming_block.push(d); selected={type:'fixed', key:d.label||'label', def:d};
+    }
+    draw();
+  };
+
+  // arrow nudge
+  $$('#right .tools .btn').forEach(b=>{
+    b.onclick=()=>{
+      if (!selected) return;
+      const dx=Number(b.dataset.dx), dy=Number(b.dataset.dy);
+      const step = (window.event && window.event.shiftKey)?10:1;
+      selected.def.x = num(selected.def.x) + dx*step;
+      selected.def.y = num(selected.def.y) + dy*step;
+      $('#inpX').value = selected.def.x; $('#inpY').value=selected.def.y;
+      draw();
+    };
+  });
+
+  // tabs
+  function syncTabs(){
+    $$('.tab').forEach(t=>t.classList.toggle('on', t.dataset.mode===currentMode));
+    $('#rowKey').style.display = currentMode==='text'?'flex':'none';
+    $('#rowOpt').style.display = currentMode==='check'?'flex':'none';
+    $('#rowLabel').style.display = currentMode==='fixed'?'flex':'none';
+  }
+  $$('.tab').forEach(t=> t.onclick=()=>{ currentMode=t.dataset.mode; syncTabs(); fillEditor(); });
+
+  // page nav
+  $('#btnPrev').onclick=()=>{ pageNow=clampPage(pageNow-1); draw(); };
+  $('#btnNext').onclick=()=>{ pageNow=clampPage(pageNow+1); draw(); };
+  $('#chkPageOnly').onchange=draw;
+
+  // url/file load
+  $('#btnLoadUrl').onclick=async()=>{
+    const url = $('#imgUrl').value.trim();
+    if (!url) return alert('이미지 URL을 입력하세요.');
+    try{ const im=await loadImageFrom(url); await setImage(im); }catch(e){ alert('이미지 로드 실패'); }
+  };
+  $('#imgFile').onchange=async(e)=>{
+    const f = e.target.files[0]; if (!f) return;
+    const url = URL.createObjectURL(f);
+    try{ const im=await loadImageFrom(url); await setImage(im);}catch(e){ alert('이미지 로드 실패'); }
+  };
+
+  // parse index.html
+  $('#btnParseHtml').onclick=async()=>{
+    const f = $('#htmlFile').files[0];
+    if (!f) return alert('index.html 파일을 선택하세요.');
+    const text = await f.text();
+    const dom = new DOMParser().parseFromString(text,'text/html');
+    const names = new Set();
+    dom.querySelectorAll('input[name],select[name],textarea[name]').forEach(el=> names.add(el.getAttribute('name')));
+    const chips = $('#fieldChips'); chips.innerHTML='';
+    Array.from(names).sort().forEach(name=>{
+      const c = document.createElement('span');
+      c.className='chip'; c.textContent=name;
+      c.onclick=()=>{ currentMode='text'; syncTabs(); $('#inpKey').value=name; };
+      chips.appendChild(c);
+    });
+    alert(`수집된 name 필드: ${names.size}개`);
+  };
+
+  // import/export
+  $('#btnImport').onclick=async()=>{
+    const input = document.createElement('input'); input.type='file'; input.accept='.json';
+    input.onchange=async(e)=>{
+      const f = e.target.files[0]; if (!f) return;
+      try {
+        const json = JSON.parse(await f.text());
+        mapping.fields = json.fields || {};
+        mapping.vmap = json.vmap || {};
+        mapping.fixed_flags = json.fixed_flags || {intl_roaming_block:[]};
+        draw();
+      } catch(err){ alert('JSON 파싱 실패'); }
+    };
+    input.click();
+  };
+  $('#btnExport').onclick=()=>{
+    const blob = new Blob([JSON.stringify(mapping,null,2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'KT_mapping_legacy_names.json';
+    a.click();
+  };
+
+  // initial blank
+  (function initBlank(){
+    const im = document.createElement('canvas');
+    im.width = cv.width; im.height = cv.height;
+    const c = im.getContext('2d'); c.fillStyle='#fff'; c.fillRect(0,0,im.width,im.height);
+    pages=[im]; draw();
+  })();
+})();
+</script>
+</body>
+</html>
