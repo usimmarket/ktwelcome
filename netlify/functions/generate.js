@@ -176,18 +176,32 @@ function readFieldText(fieldDef, form, keyNameFromMap) {
     src = "apply_date";
   }
 
-  // 1) 결제수단 정규화(반드시 앞에서 한 번 호출되어 있어야 함)
-  //    -> ensureApplyDate(form) 다음에 normalizePaymentMethod(form)이 이미 호출되어 있어야 합니다.
-  // ── 결제수단 판정(폼 값이 엉켜 있을 때도 안전하게) ─────────────────────
-let method = String(form.method || "").toLowerCase().trim();  // "bank" | "card" | ""
+  // ── 결제수단 강력 정규화 ───────────────────────────────────────────
+function normalizeMethod(raw) {
+  const s = String(raw ?? "").trim().toLowerCase();
+  if (!s) return "";
+  // 한글/영문/기타 케이스 매핑
+  if (/(^|[^a-z])bank([^a-z]|$)|은행/.test(s)) return "bank";
+  if (/(^|[^a-z])card([^a-z]|$)|카드/.test(s)) return "card";
+  return s; // 혹시 이미 'bank'/'card'면 그대로
+}
 
-// method가 비어있거나 애매하면 실제 값 존재 여부로 재판정
+let method = normalizeMethod(form.method);
+
+// form.method가 없거나 애매할 때만 값 존재 여부로 보조 판정
 if (method !== "bank" && method !== "card") {
   const hasCard = CARD_KEYS.some(k => String(form[k] ?? "").trim() !== "");
   const hasBank = BANK_KEYS.some(k => String(form[k] ?? "").trim() !== "");
   if (hasCard && !hasBank) method = "card";
   else if (hasBank && !hasCard) method = "bank";
-  else if (hasCard && hasBank) method = "card"; // 충돌 시 '카드' 우선
+  else if (hasCard && hasBank) {
+    // ★ 충돌 시, '명시'가 있으면 그걸 최우선
+    const hinted = normalizeMethod(form.pay_method ?? form.autopay_org);
+    method = hinted === "bank" || hinted === "card" ? hinted : "bank"; // 이제는 은행 우선
+  }
+}
+// 여기서부터 method는 'bank' 또는 'card' 또는 빈 문자열
+
 }
 
   // 2) autopay_* 별칭 처리
