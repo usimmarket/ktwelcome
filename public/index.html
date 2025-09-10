@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="ko">
 <head>
@@ -36,10 +37,6 @@
   .fixbar{position:sticky;bottom:0;z-index:5;background:rgba(12,21,34,.9);backdrop-filter:blur(6px);border-top:1px solid rgba(255,255,255,.06)}
   .fixbar .wrap{display:flex;gap:10px;justify-content:flex-end;padding:12px 16px}
 
-
-  /* red placeholder for handwritten-only fields */
-  #subscriber_name::placeholder, #holder_bank::placeholder,
-#holder_card::placeholder { color:#dc2626; opacity:1; }
 </style>
 </head>
 <body>
@@ -120,7 +117,7 @@
         <div class="row">
           <div>
             <label data-i18n="subscriber">가입자명</label>
-            <input type="text" name="subscriber_name" id="subscriber_name" readonly>
+            <input type="text" name="subscriber_name" id="subscriber_name">
           </div>
           <div>
             <label data-i18n="birth">생년월일</label>
@@ -216,7 +213,7 @@
           <div class="row">
             <div>
               <label data-i18n="holder_fixed">예금주명</label>
-              <input type="text" id="holder_bank" readonly>
+              <input type="text" id="holder_bank">
             </div>
             <div>
               <label data-i18n="pay_birth">생년월일</label>
@@ -240,7 +237,7 @@
           <div class="row">
             <div>
               <label data-i18n="cardholder_fixed">카드주명</label>
-              <input type="text" id="holder_card" readonly>
+              <input type="text" id="holder_card">
             </div>
             <div>
               <label data-i18n="pay_birth">생년월일</label>
@@ -451,12 +448,7 @@ function setLang(lang){
   setPH('subscriber_phone', digitsPH); setPH('bank_account', digitsPH); setPH('card_number', digitsPH);
   // handwrite placeholder for 3 fields
   const hw = trans.handwrite || '성함과 사인은 직접 작성 필수';
-  const hwKR = '※ 성함 과 사인은 필히 자필로 작성해주셔야합니다.';
-  if (lang==='KR'){ setPH('subscriber_name', hwKR); setPH('holder_bank', hwKR);   setPH('holder_card',     hwKR);
-}
-  else { setPH('subscriber_name', hw); setPH('holder_bank', hw);   setPH('holder_card',     hw);
-}
-  setPH('holder_card', hw);
+  setPH('subscriber_name', hw); setPH('holder_bank', hw); setPH('holder_card', hw);
   // examples
   setPH('wish4', lang==='US'?'e.g., 1234':lang==='VN'?'VD: 1234':lang==='TH'?'เช่น 1234':lang==='KH'?'ឧ. 1234':'예: 1234');
   setPH('card_exp_year', lang==='US'?'e.g., 27':lang==='VN'?'VD: 27':lang==='TH'?'เช่น 27':lang==='KH'?'ឧ. 27':'예: 27');
@@ -471,5 +463,68 @@ setLang('KR');
 </script>
 <script src="/post-submit.js"></script>  
 <script src="/form_patch_final_plus_i18n3.js" defer></script>   
+
+<!-- HWDEPLOY SAFE v1: keep three fields readonly + translated placeholder; no overrides -->
+<script>
+(function(){
+  var MSGS = {
+    KR: "※ 성함 과 사인은 필히 자필로 작성해주셔야합니다.",
+    EN: "※ Your name and signature must be handwritten.",
+    CN: "※ 姓名和签名必须手写。",
+    VN: "※ Họ tên và chữ ký phải viết tay.",
+    RU: "※ Имя и подпись должны быть написаны от руки."
+  };
+  function currentLang(){
+    try{
+      // language chips like KR/EN/CN/VN/RU
+      var chip = document.querySelector('.chip.active, .lang .active, .language .active');
+      if (chip){
+        var t = (chip.textContent||'').trim().toUpperCase();
+        if (MSGS[t]) return t;
+      }
+      // radios named like 'lang' or 'language'
+      var r = document.querySelector('input[type="radio"][name*="lang"]:checked, input[type="radio"][name*="language"]:checked');
+      if (r){
+        var v = (r.value||'').trim().toUpperCase();
+        if (MSGS[v]) return v;
+      }
+      // html[lang]
+      var hl = (document.documentElement.getAttribute('lang')||'').trim().toUpperCase();
+      if (MSGS[hl]) return hl;
+    }catch(_){}
+    return 'KR';
+  }
+  function apply(){
+    var msg = MSGS[currentLang()] || MSGS.KR;
+    ['subscriber_name','holder_bank','holder_card'].forEach(function(id){
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.readOnly = true;
+      try{ el.classList.add('hw-lock'); }catch(_){}
+      el.placeholder = msg;
+    });
+    // remove the legacy notice everywhere if present (KR)
+    var kill = "※대문자로작성/띄워쓰기 확인/오타 유의 해주시길바랍니다.".replace(/\s+/g,'');
+    document.querySelectorAll('small,.help,.hint,.note,.text-xs,p,div').forEach(function(n){
+      try{
+        var t=(n.innerText||'').replace(/\s+/g,'');
+        if (t===kill) n.remove();
+      }catch(_){}
+    });
+  }
+  function start(){
+    apply();
+    // Re-apply after UI interactions without touching them
+    ['click','change','input'].forEach(function(evt){
+      document.addEventListener(evt, function(){ setTimeout(apply,0); }, {passive:true});
+    });
+    // Periodic light reinforce (covers delayed inits in deployed build)
+    var left = 30;
+    var iv = setInterval(function(){ apply(); if(--left<=0) clearInterval(iv); }, 1000);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, {once:true});
+  else start();
+})();
+</script>
 </body>
 </html>
