@@ -35,7 +35,13 @@
 
   .fixbar{position:sticky;bottom:0;z-index:5;background:rgba(12,21,34,.9);backdrop-filter:blur(6px);border-top:1px solid rgba(255,255,255,.06)}
   .fixbar .wrap{display:flex;gap:10px;justify-content:flex-end;padding:12px 16px}
-
+  /* 인풋 안에 붉은색 안내문을 겹쳐 넣기 위한 래퍼와 문구 스타일 */
+  .input-block-note{position:relative}
+  .input-block-note input[readonly]{background:#f8fafc;color:#0f172a}
+  .input-block-note .hand-note{
+    position:absolute;left:12px;top:50%;transform:translateY(-50%);
+    font-size:12px;color:#ef4444;pointer-events:none;white-space:nowrap
+  }
 </style>
 </head>
 <body>
@@ -462,5 +468,32 @@ setLang('KR');
 </script>
 <script src="/post-submit.js"></script>  
 <script src="/form_patch_final_plus_i18n3.js" defer></script>   
+  <script>
+  // 대상 인풋과 문구 정의
+  const targets = [
+    {selector: 'input[name="name_kr"]', text: '※ 성함과 사인은 필히 자필로 작성해주셔야합니다.'},
+    {selector: 'input[name="autopay_holder"]', text: '※ 성함과 사인은 필히 자필로 작성해주셔야합니다.'}
+  ];
+
+  // 이미 래핑되어 있으면 중복 적용 방지
+  function wrapWithNote(input, text){
+    if(!input || input.closest('.input-block-note')) return;
+    const wrap = document.createElement('div');
+    wrap.className = 'input-block-note';
+    input.parentNode.insertBefore(wrap, input);
+    wrap.appendChild(input);
+    const note = document.createElement('span');
+    note.className = 'hand-note';
+    note.textContent = text;
+    wrap.appendChild(note);
+  }
+
+  // DOM 로드 후 적용
+  document.addEventListener('DOMContentLoaded', function(){
+    targets.forEach(t=>{
+      document.querySelectorAll(t.selector).forEach(inp=>wrapWithNote(inp, t.text));
+    });
+  });
+</script>
 </body>
 </html>
