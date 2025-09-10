@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="ko">
 <head>
@@ -37,12 +38,9 @@
   .fixbar .wrap{display:flex;gap:10px;justify-content:flex-end;padding:12px 16px}
 
 
-  /* red placeholder for handwritten-only fields */
-  #subscriber_name::placeholder, #holder_bank::placeholder { color:#dc2626; opacity:1; }
-
-/* enforce red placeholder only on locked fields */
+/* red placeholder for locked fields only */
 .hw-lock::placeholder{color:#dc2626;opacity:1;}
-</style>
+\1
 </head>
 <body>
 <header>
@@ -122,7 +120,7 @@
         <div class="row">
           <div>
             <label data-i18n="subscriber">가입자명</label>
-            <input type="text" name="subscriber_name" id="subscriber_name" readonly placeholder="※ 성함 과 사인은 필히 자필로 작성해주셔야합니다." class="hw-lock">
+            <input type="text" name="subscriber_name" id="subscriber_name" readonly class="hw-lock">
           </div>
           <div>
             <label data-i18n="birth">생년월일</label>
@@ -218,7 +216,7 @@
           <div class="row">
             <div>
               <label data-i18n="holder_fixed">예금주명</label>
-              <input type="text" id="holder_bank" readonly placeholder="※ 성함 과 사인은 필히 자필로 작성해주셔야합니다." class="hw-lock">
+              <input type="text" id="holder_bank" readonly class="hw-lock">
             </div>
             <div>
               <label data-i18n="pay_birth">생년월일</label>
@@ -453,10 +451,7 @@ function setLang(lang){
   setPH('subscriber_phone', digitsPH); setPH('bank_account', digitsPH); setPH('card_number', digitsPH);
   // handwrite placeholder for 3 fields
   const hw = trans.handwrite || '성함과 사인은 직접 작성 필수';
-  const hwKR = '※ 성함 과 사인은 필히 자필로 작성해주셔야합니다.';
-  if (lang==='KR'){ setPH('subscriber_name', hwKR); setPH('holder_bank', hwKR); }
-  else { setPH('subscriber_name', hw); setPH('holder_bank', hw); }
-  setPH('holder_card', hw);
+  setPH('subscriber_name', hw); setPH('holder_bank', hw); setPH('holder_card', hw);
   // examples
   setPH('wish4', lang==='US'?'e.g., 1234':lang==='VN'?'VD: 1234':lang==='TH'?'เช่น 1234':lang==='KH'?'ឧ. 1234':'예: 1234');
   setPH('card_exp_year', lang==='US'?'e.g., 27':lang==='VN'?'VD: 27':lang==='TH'?'เช่น 27':lang==='KH'?'ឧ. 27':'예: 27');
@@ -473,27 +468,30 @@ setLang('KR');
 <script src="/form_patch_final_plus_i18n3.js" defer></script>   
 
 <script>
-(function(){
-  const MSG = "※ 성함 과 사인은 필히 자필로 작성해주셔야합니다.";
-  function enforce(){
-    const s = document.getElementById('subscriber_name');
-    const b = document.getElementById('holder_bank');
-    if (s){ s.readOnly = true; s.placeholder = MSG; s.classList.add('hw-lock'); }
-    if (b){ b.readOnly = true; b.placeholder = MSG; b.classList.add('hw-lock'); }
-    // remove legacy note lines under those fields if present
-    const killText = "";
-    document.querySelectorAll('small, .help, .hint, .note, .text-xs, .muted, .mute').forEach(function(el){
-      if (!el || !el.innerText) return;
-      const t = el.innerText.replace(/\s+/g,'');
-      const k = killText.replace(/\s+/g,'');
-      if (t.includes(k)) el.remove();
-    });
+(function(){ 
+  var MSG = "※ 성함 과 사인은 필히 자필로 작성해주셔야합니다.";
+  function apply(){
+    try {
+      var s = document.getElementById('subscriber_name');
+      var b = document.getElementById('holder_bank');
+      if (s){ s.readOnly = true; s.classList.add('hw-lock'); if (s.placeholder !== MSG) s.placeholder = MSG; }
+      if (b){ b.readOnly = true; b.classList.add('hw-lock'); if (b.placeholder !== MSG) b.placeholder = MSG; }
+      // remove legacy note if it exists right under those groups
+      var kill = "※대문자로작성/띄워쓰기 확인/오타 유의 해주시길바랍니다.";
+      document.querySelectorAll('small, .help, .hint, .note, .text-xs').forEach(function(el){
+        var t=(el.innerText||'').replace(/\s+/g,'');
+        if (t===kill.replace(/\s+/g,'')) el.remove();
+      });
+    } catch(e) { /* no-op */ }
   }
-  if (window.setLang) {
-    const orig = window.setLang;
-    window.setLang = function(lang){ orig(lang); enforce(); };
-  }
-  document.addEventListener('DOMContentLoaded', enforce);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', apply);
+  } else { apply(); }
+  // Gentle re-apply a few times in case other scripts reset placeholders
+  (function reapply(n){
+    if (n<=0) return;
+    setTimeout(function(){ apply(); reapply(n-1); }, 800);
+  })(7);
 })();
 </script>
 </body>
