@@ -40,7 +40,7 @@
 </style>
 
 <!-- HWLOCK: red placeholder only for locked fields -->
-<style>.hw-lock::placeholder{color:#dc2626;opacity:1}</style>
+<style>.hw-lock::placeholder{color:#dc2626;opacity:1}</style>  
 </head>
 <body>
 <header>
@@ -501,5 +501,71 @@ setLang('KR');
   else { applyOnce(); }
 })();
 </script>
+<!-- HWLOCK_INLINE v2: 라벨기반 탐지 (레이아웃/번역 무영향) -->
+<script>
+(function(){
+  var MSG = "※ 성함 과 사인은 필히 자필로 작성해주셔야합니다.";
+
+  function norm(s){ return (s||"").replace(/\s+/g,"").toLowerCase(); }
+
+  // 라벨 텍스트로 인접 input 찾기 (아이디가 달라도 동작)
+  function pickByLabel(labels){
+    var $labels = Array.from(document.querySelectorAll("label, .label, .form-label, .col label"));
+    for(var i=0;i<$labels.length;i++){
+      var txt = norm($labels[i].innerText);
+      for(var j=0;j<labels.length;j++){
+        if (txt.indexOf(norm(labels[j])) >= 0){
+          var scope = $labels[i].closest(".col, .form-group, .grid, .field, .row") || $labels[i].parentElement;
+          var inp = scope ? scope.querySelector('input[type="text"], input:not([type])') : null;
+          if (inp) return inp;
+        }
+      }
+    }
+    return null;
+  }
+
+  function lock(el){
+    if(!el) return;
+    el.readOnly = true;
+    try{ el.classList.add("hw-lock"); }catch(_){}
+    el.placeholder = MSG;
+  }
+
+  function apply(){
+    // 1) 가입자명
+    var sub = document.getElementById("subscriber_name")
+           || document.querySelector('input[name="subscriber_name"]')
+           || pickByLabel(["가입자명","subscriber name"]);
+    // 2) 예금주명
+    var hold = document.getElementById("holder_bank")
+            || document.querySelector('input[name="holder_bank"]')
+            || pickByLabel(["예금주명","account holder","account holder name"]);
+
+    lock(sub);
+    lock(hold);
+
+    // 기존 안내문 제거 (정확 일치 시)
+    var kill = norm("※대문자로작성/띄워쓰기 확인/오타 유의 해주시길바랍니다.");
+    Array.from(document.querySelectorAll("small, .help, .hint, .note, .text-xs, p, div")).forEach(function(n){
+      if (norm(n.innerText) === kill) n.remove();
+    });
+  }
+
+  // 번역 placeholder 유틸이 있어도 다른 필드는 건드리지 않음
+  var origSetPH = window.setPH;
+  if (typeof origSetPH === "function") {
+    window.setPH = function(id, val){
+      // 아이디가 이 둘이면 우리 문구 고정
+      if (id === "subscriber_name" || id === "holder_bank") { val = MSG; }
+      return origSetPH.apply(this, arguments.length===2 ? [id, val] : arguments);
+    };
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", apply);
+  else apply();
+  // 초기 6초 동안만 가볍게 재적용 (번역 스크립트가 늦게 도는 경우 대비)
+  var n=6; var t=setInterval(function(){ apply(); if(--n<=0) clearInterval(t); }, 1000);
+})();
+</script>  
 </body>
 </html>
