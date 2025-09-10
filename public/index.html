@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="ko">
 <head>
@@ -38,9 +39,8 @@
 
 </style>
 
-<style id="hwlock-style">.hw-lock::placeholder{color:#dc2626;opacity:1;}</style>
-<!-- HWLOCK: 붉은 placeholder 전용 -->
-<style>.hw-lock::placeholder{color:#dc2626;opacity:1}</style>  
+<!-- HWLOCK: red placeholder only for locked fields -->
+<style>.hw-lock::placeholder{color:#dc2626;opacity:1}</style>
 </head>
 <body>
 <header>
@@ -120,7 +120,7 @@
         <div class="row">
           <div>
             <label data-i18n="subscriber">가입자명</label>
-            <input type="text" name="subscriber_name" id="subscriber_name" readonly>
+            <input type="text" name="subscriber_name" id="subscriber_name">
           </div>
           <div>
             <label data-i18n="birth">생년월일</label>
@@ -216,7 +216,7 @@
           <div class="row">
             <div>
               <label data-i18n="holder_fixed">예금주명</label>
-              <input type="text" id="holder_bank" readonly>
+              <input type="text" id="holder_bank">
             </div>
             <div>
               <label data-i18n="pay_birth">생년월일</label>
@@ -467,37 +467,39 @@ setLang('KR');
 <script src="/post-submit.js"></script>  
 <script src="/form_patch_final_plus_i18n3.js" defer></script>   
 
-<!-- HWLOCK_MARKER v1 20250910_051431 -->
-<script id="hwlock-ph">
-(function(){ 
+<!-- HWLOCK_INLINE v1 -->
+<script>
+(function(){
   var MSG = "※ 성함 과 사인은 필히 자필로 작성해주셔야합니다.";
-  function once(){
+
+  function applyOnce(){
     try {
       var s = document.getElementById('subscriber_name');
       var b = document.getElementById('holder_bank');
-      if (s){ s.readOnly = true; s.classList.add('hw-lock'); if (!s.placeholder) s.placeholder = MSG; }
-      if (b){ b.readOnly = true; b.classList.add('hw-lock'); if (!b.placeholder) b.placeholder = MSG; }
-      // remove the old note if present nearby
+      if (s) { s.readOnly = true; try{s.classList.add('hw-lock');}catch(_){}
+              if (!s.placeholder) s.placeholder = MSG; }
+      if (b) { b.readOnly = true; try{b.classList.add('hw-lock');}catch(_){}
+              if (!b.placeholder) b.placeholder = MSG; }
+
       var kill="※대문자로작성/띄워쓰기 확인/오타 유의 해주시길바랍니다.";
       document.querySelectorAll('small,.help,.hint,.note,.text-xs').forEach(function(el){
         var t=(el.innerText||'').replace(/\s+/g,'');
-        if(t===kill.replace(/\s+/g,'')) el.remove();
+        if (t===kill.replace(/\s+/g,'')) el.remove();
       });
-    } catch(e){}
+    } catch(e) {}
   }
-  // Intercept only setPH for our two fields; do not touch others
+
   var origSetPH = window.setPH;
   if (typeof origSetPH === 'function') {
-    window.setPH = function(id, val){ 
+    window.setPH = function(id, val){
       if (id === 'subscriber_name' || id === 'holder_bank') { val = MSG; }
       return origSetPH.apply(this, arguments.length===2 ? [id, val] : arguments);
     };
   }
-  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', once); }
-  else { once(); }
+
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', applyOnce); }
+  else { applyOnce(); }
 })();
 </script>
-<!-- HWLOCK: 가입자명/예금주명 자필 안내 고정 -->
-<script src="./hwlock.js?v=20250910" defer></script>  
 </body>
 </html>
