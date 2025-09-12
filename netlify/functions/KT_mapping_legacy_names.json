@@ -1,5 +1,4 @@
-{
-  "fields": {
+{ "fields": {
     "address_p1_1": {
       "x": 140.65,
       "y": 704.65,
@@ -50,17 +49,7 @@
       ],
       "type": "text"
     },
-    "birth_p1_6": {
-      "x": 349.65,
-      "y": 282.65,
-      "size": 10,
-      "page": 1,
-      "source": [
-        "birth"
-      ],
-      "type": "text"
-    },
-    "birth_p3_7": {
+    "birth_p3_6": {
       "x": 290.65,
       "y": 231.65,
       "size": 10,
@@ -70,7 +59,7 @@
       ],
       "type": "text"
     },
-    "birth_p3_8": {
+    "birth_p3_7": {
       "x": 504.65,
       "y": 376.65,
       "size": 10,
@@ -80,7 +69,7 @@
       ],
       "type": "text"
     },
-    "disc_p1_9": {
+    "disc_p1_8": {
       "x": 515.65,
       "y": 114.65,
       "size": 10,
@@ -90,7 +79,7 @@
       ],
       "type": "text"
     },
-    "monthly_p1_10": {
+    "monthly_p1_9": {
       "x": 515.65,
       "y": 102.65,
       "size": 10,
@@ -100,7 +89,7 @@
       ],
       "type": "text"
     },
-    "mvno_name_p1_11": {
+    "mvno_name_p1_10": {
       "x": 508.65,
       "y": 540.65,
       "size": 10,
@@ -110,7 +99,7 @@
       ],
       "type": "text"
     },
-    "plan_p1_12": {
+    "plan_p1_11": {
       "x": 155.65,
       "y": 351.65,
       "size": 12,
@@ -120,7 +109,7 @@
       ],
       "type": "text"
     },
-    "plan_p1_13": {
+    "plan_p1_12": {
       "x": 436.65,
       "y": 92.65,
       "size": 9,
@@ -130,7 +119,7 @@
       ],
       "type": "text"
     },
-    "port_number_p1_14": {
+    "port_number_p1_13": {
       "x": 161.65,
       "y": 538.65,
       "size": 12,
@@ -140,7 +129,7 @@
       ],
       "type": "text"
     },
-    "sim_serial_p1_15": {
+    "sim_serial_p1_14": {
       "x": 226.65,
       "y": 409.65,
       "size": 10,
@@ -150,7 +139,7 @@
       ],
       "type": "text"
     },
-    "subscriber_name_p1_16": {
+    "subscriber_name_p1_15": {
       "x": 359.65,
       "y": 253.65,
       "size": 10,
@@ -160,7 +149,7 @@
       ],
       "type": "text"
     },
-    "subscriber_name_p1_17": {
+    "subscriber_name_p1_16": {
       "x": 152.65,
       "y": 286.65,
       "size": 10,
@@ -170,7 +159,7 @@
       ],
       "type": "text"
     },
-    "subscriber_name_p1_18": {
+    "subscriber_name_p1_17": {
       "x": 404.65,
       "y": 718.65,
       "size": 10,
@@ -180,7 +169,7 @@
       ],
       "type": "text"
     },
-    "subscriber_name_p1_19": {
+    "subscriber_name_p1_18": {
       "x": 351.65,
       "y": 795.65,
       "size": 10,
@@ -190,7 +179,7 @@
       ],
       "type": "text"
     },
-    "subscriber_name_p2_20": {
+    "subscriber_name_p2_19": {
       "x": 360.65,
       "y": 781.65,
       "size": 10,
@@ -200,7 +189,7 @@
       ],
       "type": "text"
     },
-    "subscriber_name_p3_21": {
+    "subscriber_name_p3_20": {
       "x": 353.65,
       "y": 195.65,
       "size": 10,
@@ -210,7 +199,7 @@
       ],
       "type": "text"
     },
-    "subscriber_name_p3_22": {
+    "subscriber_name_p3_21": {
       "x": 87.65,
       "y": 247.65,
       "size": 10,
@@ -220,7 +209,7 @@
       ],
       "type": "text"
     },
-    "subscriber_name_p3_23": {
+    "subscriber_name_p3_22": {
       "x": 245.65,
       "y": 376.65,
       "size": 10,
@@ -230,7 +219,7 @@
       ],
       "type": "text"
     },
-    "subscriber_name_p3_24": {
+    "subscriber_name_p3_23": {
       "x": 338.65,
       "y": 450.65,
       "size": 11,
@@ -240,7 +229,7 @@
       ],
       "type": "text"
     },
-    "subscriber_name_p3_25": {
+    "subscriber_name_p3_24": {
       "x": 361.65,
       "y": 707.65,
       "size": 10,
@@ -250,7 +239,7 @@
       ],
       "type": "text"
     },
-    "subscriber_name_p3_26": {
+    "subscriber_name_p3_25": {
       "x": 366.65,
       "y": 786.65,
       "size": 10,
@@ -260,7 +249,7 @@
       ],
       "type": "text"
     },
-    "subscriber_name_p8_27": {
+    "subscriber_name_p8_26": {
       "x": 333.65,
       "y": 790.65,
       "size": 10,
@@ -270,7 +259,7 @@
       ],
       "type": "text"
     },
-    "subscriber_phone_p3_28": {
+    "subscriber_phone_p3_27": {
       "x": 483.65,
       "y": 231.65,
       "size": 10,
@@ -280,7 +269,7 @@
       ],
       "type": "text"
     },
-    "total_p1_29": {
+    "total_p1_28": {
       "x": 149.65,
       "y": 111.65,
       "size": 11,
@@ -290,7 +279,7 @@
       ],
       "type": "text"
     },
-    "wish4_p1_30": {
+    "wish4_p1_29": {
       "x": 272.65,
       "y": 332.65,
       "size": 11,
@@ -300,7 +289,7 @@
       ],
       "type": "text"
     },
-    "apply_date_p1_31": {
+    "apply_date_p1_30": {
       "x": 78,
       "y": 802,
       "size": 11,
@@ -310,7 +299,7 @@
       ],
       "type": "text"
     },
-    "apply_date_p3_32": {
+    "apply_date_p3_31": {
       "x": 58,
       "y": 781,
       "size": 11,
@@ -320,7 +309,7 @@
       ],
       "type": "text"
     },
-    "apply_date_p8_33": {
+    "apply_date_p8_32": {
       "x": 72,
       "y": 778,
       "size": 11,
@@ -330,7 +319,7 @@
       ],
       "type": "text"
     },
-    "autopay_org_p3_34": {
+    "autopay_org_p3_33": {
       "x": 305,
       "y": 391,
       "size": 11,
@@ -340,7 +329,7 @@
       ],
       "type": "text"
     },
-    "autopay_number_p3_35": {
+    "autopay_number_p3_34": {
       "x": 350,
       "y": 392,
       "size": 10,
@@ -350,7 +339,7 @@
       ],
       "type": "text"
     },
-    "autopay_exp_p3_36": {
+    "autopay_exp_p3_35": {
       "x": 518,
       "y": 392,
       "size": 10,
