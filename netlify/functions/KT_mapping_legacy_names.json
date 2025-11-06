@@ -321,7 +321,7 @@
       "type": "text"
     },
     "autopay_org_p3_33": {
-      "x": 305,
+      "x": 309,
       "y": 451,
       "size": 11,
       "page": 3,
@@ -331,7 +331,7 @@
       "type": "text"
     },
     "autopay_number_p3_34": {
-      "x": 350,
+      "x": 355,
       "y": 451,
       "size": 10,
       "page": 3,
@@ -342,7 +342,7 @@
     },
     "autopay_exp_p3_35": {
       "x": 518,
-      "y": 465,
+      "y": 450,
       "size": 10,
       "page": 3,
       "source": [
