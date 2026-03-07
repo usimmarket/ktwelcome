@@ -91,8 +91,8 @@
       "type": "text"
     },
     "mvno_name_p1_10": {
-      "x": 508.65,
-      "y": 540.65,
+      "x": 315.65,
+      "y": 402.65,
       "size": 10,
       "page": 1,
       "source": [
@@ -347,6 +347,26 @@
       "page": 3,
       "source": [
         "autopay_exp"
+      ],
+      "type": "text"
+    },
+    "birth_p3_36": {
+      "x": 315.65,
+      "y": 402.65,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "birth"
+      ],
+      "type": "text"
+    },
+    "birth_p3_37": {
+      "x": 504.65,
+      "y": 545.65,
+      "size": 10,
+      "page": 3,
+      "source": [
+        "birth"
       ],
       "type": "text"
     }
