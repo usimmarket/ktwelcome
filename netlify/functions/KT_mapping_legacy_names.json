@@ -351,16 +351,6 @@
       "type": "text"
     },
     "birth_p3_36": {
-      "x": 304.65,
-      "y": 402.65,
-      "size": 10,
-      "page": 3,
-      "source": [
-        "birth"
-      ],
-      "type": "text"
-    },
-    "birth_p3_37": {
       "x": 504.65,
       "y": 545.65,
       "size": 10,
